@@ -41,7 +41,7 @@ export default function ProductSelector(props)
         <div className="area productSelector">
             {
                 data.products.map((product) => (
-                    <div key={product.id} className="product">
+                    <div key={product.id} className="product" onClick={()=>{props.update({id:product.id,type:"product"})}}>
                         <div className="name">{product.name}</div>
                         <div className="price">£{product.price}</div>
                     </div>
@@ -49,7 +49,7 @@ export default function ProductSelector(props)
             }
             {
                 data.productGroups.map((group) => (
-                    <div key={group.id} className="productGroup">
+                    <div key={group.id} className="productGroup" onClick={()=>{props.update({id:group.id,type:"group"})}}>
                         <div className="name">{group.name}</div>
                         <div className="price">Select Options</div>
                     </div>

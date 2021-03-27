@@ -352,6 +352,11 @@ section.panel.sixty {
     color: #333333;
     padding: .35rem .5rem;
     width: calc(25% - 1rem);
+    /* margin: 0 .25rem; */
+    border-radius: 5px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 .tabs_header > .tabHeader:nth-child(odd)
 {
@@ -366,13 +371,13 @@ section.panel.sixty {
     background: var(--primarypurple);
     color:white;
 }
-.tabs_header > .tabHeader:first-child
+/*.tabs_header > .tabHeader:first-child
 {
     border-top-left-radius:8px;
 }
 .tabs_header > .tabHeader:last-child{
     border-top-right-radius: 8px;
-}
+}*/
 
 .tabs_bodys {
     border: 1px solid var(--primarypurple);

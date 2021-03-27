@@ -2,6 +2,7 @@ import {useState} from 'react';
 
 import CategorySelector from './addorderitems/CategorySelector';
 import ProductSelector from './addorderitems/ProductSelector';
+import ProductEditor from './addorderitems/ProductEditor';
 import OrderReceipt from './orderreceipt/OrderReceipt';
 
 function OrderEditor()
@@ -22,7 +23,7 @@ function OrderEditor()
                     )
                     :
                     (
-                        <div></div>
+                        <ProductEditor entity={currentProduct}/>
                     )
                 }
             </section>
