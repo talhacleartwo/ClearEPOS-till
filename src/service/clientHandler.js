@@ -1,7 +1,7 @@
 import {createHttpLink} from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
-const DS_URL = "http://192.168.1.70:1337/graphql";
+const DS_URL = "https://ds-cleartwo.clearepos.com/graphql";
 
 export function getLink(userContext = null)
 {
