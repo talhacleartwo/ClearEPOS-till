@@ -58,7 +58,7 @@ function CustomerSearchResults(props)
     return data.customers.map((customer) => (
         <div className="customerMini" key={customer.id} >
             <div className="customer" data-customer={JSON.stringify(customer)} onClick={getCustomerUpdateFunction()}>
-                <div className="customerIcon">C</div>
+                <div className="customerIcon"><i className="icon-person"></i></div>
                 <div className="content">
                     <div className="name">{customer.firstname} {customer.lastname} </div>
                     <div className="phone">{customer.mobilephone}</div>
@@ -70,7 +70,7 @@ function CustomerSearchResults(props)
                     {
                         customer.addresses.map((address) => (
                             <div className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
-                                <div className="addressIcon">A</div>
+                                <div className="addressIcon"><i className="icon-location"></i></div>
                                 <div className="content">
                                     {address.name} | {address.postalcode}
                                 </div>

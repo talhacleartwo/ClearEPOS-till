@@ -22,7 +22,8 @@ function Tabs(props)
                 {
                     props.tabHeaders.map((header) => (
                         <div key={header.key} className={getTabHeaderClasses(header)} onClick={changeTab} data-tabid={header.key}>
-                            {header.title}
+                            <i className={'icon-' + header.icon}></i>
+                            <span className="text">{header.title}</span>
                         </div>
                     ))
                 }

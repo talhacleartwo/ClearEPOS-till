@@ -1,15 +1,26 @@
 import CurrentOrderHeader from '../../../ui/CurrentOrderHeader';
 import OrderActions from './OrderActions';
 import OrderItems from './OrderItems';
+import {LoadingData} from '../../../ui/DisplayUtility';
 
-function OrderReceipt()
+function OrderReceipt(props)
 {
+    if(props.orderLoading)
+    {
+        return LoadingData();
+    }
+
     return(
         <div className="orderReceiptWrapper">
-            <CurrentOrderHeader/>
+            <CurrentOrderHeader orderSettingsToggle={props.openOrderSettings} currentOrder={props.currentOrder}/>
             <div className="clearfix"></div>
-            <OrderItems/>
-            <OrderActions/>
+            <OrderItems 
+                removeExistingOrderItem={props.removeExistingOrderItem} 
+                editExistingOrderItem={props.editExistingOrderItem}
+                lineItems={props.currentOrder.line_items}
+                editingItem={props.editingItem}
+            />
+            <OrderActions setOrderPaymentOpen={props.setOrderPaymentOpen} currentOrder={props.currentOrder}/>
         </div>
     );
 }

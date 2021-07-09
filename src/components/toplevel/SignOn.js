@@ -1,35 +1,96 @@
-import React, {useState, useContext} from "react";
+import React, {useState} from "react";
+import {useLazyQuery, gql} from "@apollo/client";
+import * as _storage from "../../service/storage";
 
 import styles from '../../cssmodules/signon.module.css';
 
-import {useCurrentUser, useUserUpdate} from '../../contexts/UserContext';
+import {useUserUpdate} from '../../contexts/UserContext';
+
+const LOGIN_QUERY = gql`
+query AttemptLogin($code: String!){
+    attemptTillLogin(logindata:{code:$code})
+    {
+        result
+        jwt,
+        user
+        {
+            id,
+            name,
+            username,
+            email,
+            role
+            {
+                id,
+                type
+            },
+            brands
+            {
+                id,
+                name
+            }
+        }
+    }
+}`;
+
 
 function SignOn()
 {
+    
     //Context for Users
-    const currentUser = useCurrentUser();
+    //const currentUser = useCurrentUser();
     const updateUser = useUserUpdate();
 
     //State for keypad
     const [currentCode, setCurrentCode] = useState("");
+    const [submitForm, setSubmitForm] = useState(false);
+    const [showDevOpts, setShowDevOpts] = useState(false);
 
+    var codeToSubmit = submitForm ? currentCode : "";
+    
+    const [attemptLogin] = useLazyQuery(LOGIN_QUERY, {
+        variables: {code:codeToSubmit},
+        onCompleted: (data) =>{
+            if(data.attemptTillLogin)
+            {
+                var loginResult = data.attemptTillLogin;
+                if(loginResult.result)
+                {
+                    updateUser({jwt:loginResult.jwt, user: loginResult.user});
+                    setSubmitForm(false);
+                }
+                else
+                {
+                    setSubmitForm(false);
+                    setCurrentCode("");
+                }
+            }
+        }
+    })
+
+    
     
     function keyPress(key)
     {
         var val = key.target.dataset.value;
-
-        var newVal = (val == "-" ? currentCode.substring(0, currentCode.length - 1) : currentCode + val);
+        var newVal = (val === "-" ? currentCode.substring(0, currentCode.length - 1) : currentCode + val);
         setCurrentCode(newVal);
-       
-        //console.log(currentCode)
     }
 
     function handleSubmit(event)
     {
         event.preventDefault();
 
+        setSubmitForm(true);
+        //Live
+        attemptLogin();
+
         //Send API request / Update state so that we can send API request
-        updateUser(1);
+        //TESTING  updateUser(1);
+    }
+
+    function changeDevOpts(o)
+    {
+        setShowDevOpts(o);
     }
 
     return(
@@ -59,6 +120,28 @@ function SignOn()
                     <div onClick={keyPress} className={styles.key} data-value="0">0</div>
                     <div onClick={handleSubmit} className={styles.key}>G</div>
                 </div>
+            </div>
+            <div id="DevOptions" className={"show-" + showDevOpts} onClick={()=>{setShowDevOpts(true)}}>
+                {
+                    showDevOpts ? (
+                        <div className="DevOptionList">
+                            <ul>
+                                <li onClick={()=>{changeDevOpts(false)}}><i className="icon-prev"></i></li>
+                                <li onClick={()=>{
+                                    if(window.confirm("Are you sure you want to wipe device config?")){
+                                        _storage.removeInitialConfig();window.location.reload();
+                                    }
+                                }}>Clear Device Config</li>
+                                <li onClick={()=>{
+                                    if(window.confirm("Are you sure you want to wipe the catalog cache?")){
+                                        _storage.deleteCatalogCache();window.location.reload();
+                                    }
+                                }}>Clear Catalog Cache</li>
+                            </ul>
+                        </div>
+                    )
+                    : null
+                }
             </div>
         </div>
     );

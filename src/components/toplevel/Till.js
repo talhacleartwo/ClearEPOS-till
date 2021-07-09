@@ -1,4 +1,9 @@
-import React from "react";
+import {React, useState} from "react";
+
+import * as _storage from "../../service/storage";
+
+//Apollo
+import {useLazyQuery} from "@apollo/client";
 
 //Styles
 import '../../Till.css';
@@ -7,11 +12,15 @@ import '../../Till.css';
 import {useCurrentOrder} from '../../contexts/OrderContext';
 import {useCurrentUser} from '../../contexts/UserContext';
 
+//Queries
+import {CATALOG_CACHE_QUERY} from '../../service/queries';
+
 //Components
 import CreateOrderPanel from '../till/panels/CreateOrderPanel';
 import ManageOrdersPanel from '../till/panels/ManageOrdersPanel';
 import OrderEditor from '../till/screens/ordereditor/OrderEditor';
 import SignOn from '../toplevel/SignOn';
+
 
 function Till()
 {
@@ -21,8 +30,32 @@ function Till()
     //Get Current User Context
     var currentUser = useCurrentUser();
 
+    const [awaitingCache,setAwaitingCache] = useState(false);
+
+    const [fetchCatalogCache] = useLazyQuery(CATALOG_CACHE_QUERY,{fetchPolicy:"no-cache",variables:{brands:_storage.getDeviceBrands()}, onCompleted:(data)=>{
+        _storage.setCatalogCache(data);
+        setAwaitingCache(false);
+    }});
+
+
     if(currentUser)
     {
+        //Check if catalog cache has already been saved
+        if(!_storage.hasCatalogCache() && !awaitingCache)
+        {
+            return (
+                <div className="CacheLoadNeeded" onClick={()=>{fetchCatalogCache(); setAwaitingCache(true);}}>Click to load cache</div>
+            );
+        }
+
+        if(awaitingCache)
+        {
+            return (
+                <div className="LoadingCache">Please wait while the catalog cache loads..</div>
+            );
+        }
+
+
         //Present Till interface
         return(
             <div id="Till">
@@ -36,7 +69,7 @@ function Till()
                     )
                     : 
                     (
-                        <OrderEditor/>
+                        <OrderEditor orderId={currentOrder}/>
                     )
                 }
                 

@@ -1,0 +1,134 @@
+.Setup {
+    background: #172345;
+    height: calc(100% - 2em);
+    padding: 1em;
+    color:white;
+}
+.subtitle
+{
+    color:#a0b0df;
+}
+
+
+.deviceAccessIcon
+{
+    background: var(--success);
+    color:white;
+    border-radius: 5px;
+    width: 1.5em;
+    height: 1.5em;
+    line-height: 1.5em;
+    text-align: center;
+    display: inline-block;
+}
+.deviceAccessIconDenied
+{
+    background: var(--danger);
+    color:white;
+    border-radius: 5px;
+    width: 1.5em;
+    height: 1.5em;
+    line-height: 1.5em;
+    text-align: center;
+    display: inline-block;
+}
+.accessText {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.step {
+    width: 50%;
+}
+
+.formgroup {
+    margin-bottom: 1em;
+}
+.formgroup_label{
+    margin-bottom: .2em;
+    display:block;
+}
+
+.formcontrol_select
+{
+    border-radius: 4px;
+    border: none;
+    padding: .275em .35em;
+    outline: none;
+    font-size: .95rem;
+    width: calc(100% - .70em);
+    border: 2px solid #d8d8d8;
+    display: block;
+}
+
+/*html, body, #root {
+    height: 100%;
+    margin: 0;
+    font-size: 18px;
+}
+#Setup
+{
+    background-color:#2c3245;
+    color:white;
+    padding-top: 20px;
+    height:calc(100% - 20px);
+}
+.setupContainer {
+    width: min(95%, 100em);
+    margin: 0 auto;
+}
+h2.brandLogo {
+    color: #4363c4;
+    margin: 0;
+    font-weight: 500;
+}
+h4.subtitle {
+    margin-top: 0;
+    color: #a0b0df;
+    font-weight:400;
+}
+.form-group
+{
+    margin-bottom:1em;
+}
+.form-group > label:not(.switch) {
+    display: block;
+    margin-bottom: .35em;
+}
+label.switch {
+    width: 3em;
+    height: 1.3em;
+    background: white;
+    display: block;
+    border-radius: 5em;
+    position: relative;
+    cursor:pointer;
+}
+label.switch input{
+    display:none;
+}
+label.switch input:checked ~ .slider {
+    left: calc(100% - 1.1em);
+    background: #314991;
+}
+label.switch .slider {
+    position: absolute;
+    border-radius: 100%;
+    background: #adadad;
+    width: 1em;
+    height: 1em;
+    top: .15em;
+    left:.1em;
+    transition: all .2s ease;
+}
+input {
+    height: 1.3em;
+    border-radius: 8px;
+    border: none;
+    padding: .375em .35em;
+    outline: none;
+    font-size: 1rem;
+    width: calc(100% - .70em);
+    border: 3px solid grey;
+    display: block;
+}*/

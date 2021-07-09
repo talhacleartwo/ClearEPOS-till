@@ -6,10 +6,12 @@ import CustomerSearchResults from '../controls/CustomerSearchResults';
 
 //Contexts
 import { useSetCurrentOrder } from '../../../contexts/OrderContext';
+import StaffSearchResults from '../controls/StaffSearchResults';
 
 const BLANK_ORDER = {
     type: null,
     source: 'direct',
+    staff_member: null,
     customer : null,
     address: null
 };
@@ -18,7 +20,8 @@ const CREATE_ORDER_MUTATION = gql`
     mutation CreateOrder(
         $type: ENUM_ORDER_TYPE!
         $source: ENUM_ORDER_SOURCE!
-        $customer: ID!
+        $staff_member: ID,
+        $customer: ID,
         $address: ID
     ) {
         createOrder(
@@ -26,6 +29,7 @@ const CREATE_ORDER_MUTATION = gql`
                 data: {
                     type: $type
                     source: $source
+                    staff_member: $staff_member
                     customer: $customer
                     address: $address
                 }
@@ -36,6 +40,12 @@ const CREATE_ORDER_MUTATION = gql`
                 id
                 type
                 source
+                staff_member
+                {
+                    id,
+                    firstname,
+                    lastname
+                }
                 customer {
                     id
                     firstname
@@ -59,12 +69,25 @@ function CreateOrderPanel(props)
     const [showSection,changeShowSection] = useState('type');
     const [currentCustomerSearch, setCurrentCustomerSearch] = useState('');
 
-    const [createNewOrder, { loading: mutationLoading, error: mutationError }] = useMutation(CREATE_ORDER_MUTATION, {onCompleted(data){
-        openOrder(data);
-    }});
+    const [createNewOrder, { loading: mutationLoading, error: mutationError }] = useMutation(CREATE_ORDER_MUTATION, {
+        onCompleted(data){
+            openOrder(data);
+        }
+    });
 
     //Use our custom hook to enable us to set the current order after creating or opening one
     var setCurrentOrder = useSetCurrentOrder();
+
+    //IF the current type is walkin or eatin, create the order now
+    /*useEffect(() => {
+        if( (newOrder.type === "eatin" || newOrder.type === "walkin") && !mutationLoading )
+        {
+            createOrder();
+        }
+    }, [newOrder.type]);*/
+    
+
+    
 
     //Check if currently creating new order
     if(mutationLoading)
@@ -84,6 +107,9 @@ function CreateOrderPanel(props)
         );
     }
 
+
+    
+
     function getTypeOptionClasses(myID)
     {
         return "coOption " + myID + (myID === newOrder.type ? " selected" : "");
@@ -96,7 +122,15 @@ function CreateOrderPanel(props)
         var nOrder = newOrder;
         nOrder.type = val;
         updateNewOrder(nOrder);
-        changeShowSection('customer');
+
+        if(val !== "staff")
+        {
+            changeShowSection('customer');
+        }
+        else
+        {
+            changeShowSection('staff');
+        }
     }
 
     function searchChanged(event)
@@ -128,6 +162,16 @@ function CreateOrderPanel(props)
         changeShowSection('summary');
     }
 
+    function staffMemberSelected(event)
+    {
+        var val = JSON.parse(event.target.dataset.staffmember);
+        var nOrder = newOrder;
+        nOrder.staff_member = val.id;
+        nOrder.staffData = val;
+        updateNewOrder(nOrder);
+        changeShowSection('summary');
+    }
+
     function updateCustomer(event)
     {
 
@@ -138,12 +182,20 @@ function CreateOrderPanel(props)
 
     }
 
-    function createOrder()
+    function createOrder(nOrder)
     {
-        var theOrder = {...newOrder};
+        var theOrder = {...nOrder};
         delete theOrder.customerData;
+        delete theOrder.staffData;
         delete theOrder.addressData;
         createNewOrder({variables:theOrder});
+    }
+
+    function createEatinWalkinOrder(type)
+    {
+        var no={...BLANK_ORDER}; 
+        no.type=type;
+        createOrder(no);
     }
 
     function openOrder(data)
@@ -158,15 +210,19 @@ function CreateOrderPanel(props)
     function renderCreatOrderNavigation()
     {
         return(
-            <div className="createOrderHeaderBar">
-                {showSection === 'customer' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}>P</div> : null}
-                {showSection === 'summary' ? <div className="navbtn prev" onClick={() => changeShowSection('customer')}>P</div> : null}
-                {showSection === 'editCustomer' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}>P</div> : null}
-                {showSection === 'editAddress' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}>P</div> : null}
-                <h3>Create Order</h3>
-                {showSection === 'type' && newOrder.type != null ? <div className="navbtn next" onClick={() => changeShowSection('customer')}>N</div> : null}
-                {showSection === 'customer' && newOrder.customer != null ? <div className="navbtn next" onClick={() => changeShowSection('summary')}>N</div> : null}
-            </div>
+            <>
+                <header className="withNav">
+                    {showSection === 'customer' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'staff' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'summary' ? <div className="navbtn prev" onClick={() => changeShowSection('customer')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'editCustomer' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'editAddress' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
+                    <h3>Create Order</h3>
+                    {showSection === 'type' && newOrder.type != null ? <div className="navbtn next" onClick={() => changeShowSection('customer')}><i className="icon-next"></i></div> : null}
+                    {showSection === 'customer' && newOrder.customer != null ? <div className="navbtn next" onClick={() => changeShowSection('summary')}><i className="icon-next"></i></div> : null}
+                </header>
+                <div className="clearfix"></div>
+            </>
         );
     }
 
@@ -174,10 +230,10 @@ function CreateOrderPanel(props)
     {
         return (
             <div className="section delivery_type">
-                <h4 className="center">Order Type</h4>
+                {/*<h4 className="center">Order Type</h4>*/}
                 <div className="coSelector">
-                    <div className={getTypeOptionClasses('walkin')} data-value="walkin" onClick={typeChanged}>Walk In</div>
-                    <div className={getTypeOptionClasses('eatin')} data-value="eatin" onClick={typeChanged}>Eat In</div>
+                    <div className={getTypeOptionClasses('walkin')} data-value="walkin" onClick={()=>{createEatinWalkinOrder("walkin")}}>Walk In</div>
+                    <div className={getTypeOptionClasses('eatin')} data-value="eatin" onClick={()=>{createEatinWalkinOrder("eatin")}}>Eat In</div>
                     <div className={getTypeOptionClasses('collection')} data-value="collection" onClick={typeChanged}>Collection</div>
                     <div className={getTypeOptionClasses('delivery')} data-value="delivery" onClick={typeChanged}>Delivery</div>
                     <div className={getTypeOptionClasses('staff')} data-value="staff" onClick={typeChanged}>Staff</div>
@@ -209,50 +265,86 @@ function CreateOrderPanel(props)
         );
     }
 
+    function renderStaffList()
+    {
+        return(
+            <div className="staffSearch">
+                <h4 className="center">Staff Member</h4>
+                {
+                    <StaffSearchResults updateFunction={staffMemberSelected}/>
+                }
+            </div>
+        );
+    }
+
+
     function renderSummarySection()
     {
         return(
             <div className="section summary">
-                <div className="customerCard">
-                    <div className="customerIcon">C</div>
-                    <div className="content">
-                        <div className="name">{newOrder.customerData.firstname} {newOrder.customerData.lastname}</div>
-                        <div className="sub">{newOrder.customerData.mobilephone}</div>
-                    </div>
-                </div>
+                {
+                    newOrder.type === 'staff' ?
+                    (
+                        <div className="customerCard">
+                            <div className="customerIcon"><i className="icon-person"></i></div>
+                            <div className="content">
+                                <div className="name">{newOrder.staffData.firstname} {newOrder.staffData.lastname}</div>
+                            </div>
+                        </div>
+                    )
+                    :
+                    (
+                        <div className="customerCard">
+                            <div className="customerIcon"><i className="icon-person"></i></div>
+                            <div className="content">
+                                <div className="name">{newOrder.customerData.firstname} {newOrder.customerData.lastname}</div>
+                                <div className="sub">{newOrder.customerData.mobilephone}</div>
+                            </div>
+                        </div>
+                    )
+                }
+                
                 <hr className="fifty"/>
                 {
-                    newOrder.addressData ? 
-                        (
-                            <>
-                                <div className="addressCard">
-                                    <div className="addressIcon">A</div>
-                                    <div className="content">
-                                        Delivering to {newOrder.addressData.name} address at {newOrder.addressData.postalcode}
-                                    </div>
+                    newOrder.addressData && newOrder.type === "delivery" ? 
+                    (
+                        <>
+                            <div className="addressCard">
+                                <div className="addressIcon"><i className="icon-location"></i></div>
+                                <div className="content">
+                                    Delivering to {newOrder.addressData.name} address at {newOrder.addressData.postalcode}
                                 </div>
-                                <hr/>
-                            </>
-                        )
+                            </div>
+                            <hr/>
+                        </>
+                    )
                     : 
                     newOrder.type === 'collection' ? 
-                        (
-                            <>
-                            <div className="addressCard">
-                                <div className="addressIcon">A</div>
-                                    <div className="content">
-                                        Collection from store
-                                    </div>
+                    (
+                        <>
+                        <div className="addressCard">
+                            <div className="addressIcon"><i className="icon-eatin"></i></div>
+                                <div className="content">
+                                    Collection from store
                                 </div>
-                                <hr/>
-                            </>
-                        ) 
-                        : null
+                            </div>
+                            <hr/>
+                        </>
+                    ) 
+                    : 
+                    null
                 }
                 <div className="buttonBar">
-                    <div className="btn btn-info" onClick={() => {changeShowSection('editCustomer');} }>Edit Customer</div>
+                    {
+                        newOrder.type !== "staff" ? 
+                        (
+                            <div className="btn btn-info" onClick={() => {changeShowSection('editCustomer');} }>Edit Customer</div>
+                        )
+                        :
+                        null
+                    }
                     {newOrder.addressData ? <div className="btn btn-info" onClick={() => {changeShowSection('editAddress');} }>Edit Address</div> : null}
-                    <div className="btn btn-success" onClick={createOrder}>Create Order</div>
+                    <div className="btn btn-success" onClick={()=>{createOrder(newOrder)}}>Create Order</div>
                 </div>
             </div>
         );
@@ -319,6 +411,7 @@ function CreateOrderPanel(props)
             {renderCreatOrderNavigation()}
             {showSection === 'type' ? renderTypeSection() : null}
             {showSection === 'customer' ? renderCustomerSearch() : null}
+            {showSection === 'staff' ? renderStaffList() : null}
             {showSection === 'summary' ? renderSummarySection() : null}
             {showSection === 'editCustomer' ? renderCustomerEditSection() : null}
             {showSection === 'editAddress' ? renderAddressEditSection() : null}

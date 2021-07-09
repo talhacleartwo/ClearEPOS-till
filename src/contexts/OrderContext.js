@@ -19,12 +19,14 @@ export default function OrderContextProvider({children})
 {
     const [order, setOrder] = useState(null);
 
-    //Function to update the order
-    /*function updateCurrentOrder(user)
+    //Function to collect order ID and download the order
+    /*function updateCurrentOrder(orderId)
     {
-        setOrder(user);
+        /const {loading, error, data} = useQuery(ORDER_QUERY, {variables:{orderId: orderId}});
+        setOrder(data);
     }*/
 
+    
     return (
         <OrderContext.Provider value={order}>
             <OrderUpdateContext.Provider value={setOrder}>
