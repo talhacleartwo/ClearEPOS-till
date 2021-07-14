@@ -6,9 +6,9 @@ export default function OrderActions(props)
     const setCurrentOrder = useSetCurrentOrder();
 
     //const showOrderBtn = props.currentOrder.status !== "paid";
-    const showPayBtn = props.currentOrder.status !== "paid";
-    const showRefundBtn = props.currentOrder.status === "paid";
-    const showVoidBtn = props.currentOrder.status !== "paid";
+    const showPayBtn = props.currentOrder.paymentstatus !== "paid";
+    const showRefundBtn = props.currentOrder.paymentstatus === "paid";
+    const showVoidBtn = props.currentOrder.paymentstatus !== "paid";
 
     return (
         <div id="OrderActions">
