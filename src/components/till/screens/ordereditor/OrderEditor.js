@@ -4,7 +4,7 @@ import {useQuery, useMutation} from '@apollo/client';
 //import {LoadingData} from '../../ui/DisplayUtility';
 
 //Queries
-import {REMOVE_LINE_ITEM, UPDATE_LINE_ITEM, ADD_LINE_ITEM, ORDER_QUERY, UPDATE_ORDER_STATUS, UPDATE_ORDER_PAYMENT_STATUS} from '../../../../service/queries';
+import {REMOVE_LINE_ITEM, UPDATE_LINE_ITEM, ADD_LINE_ITEM, ORDER_QUERY, UPDATE_ORDER_STATUS, UPDATE_ORDER_NOTES, UPDATE_ORDER_PAYMENT_STATUS} from '../../../../service/queries';
 
 import CategorySelector from './addorderitems/CategorySelector';
 import ProductSelector from './addorderitems/ProductSelector';
@@ -38,6 +38,7 @@ function OrderEditor(props)
         fetchPolicy: 'cache-and-network', 
         variables:{orderId: props.orderId}, 
         onCompleted:(data) => {
+            console.log(data.order);
             updateCurrentOrderData(data.order);
         }
     });
@@ -83,6 +84,18 @@ function OrderEditor(props)
             }
         ]
     });
+    const [UpdateOrderNotes] = useMutation(UPDATE_ORDER_NOTES,
+        {
+            refetchQueries:[
+                {
+                    query:ORDER_QUERY,
+                    variables:{orderId: props.orderId
+                }
+            }
+        ]
+    });
+    
+    
     const [updateOrderPaymentStatus] = useMutation(UPDATE_ORDER_PAYMENT_STATUS,
         {
             refetchQueries:[
@@ -176,6 +189,15 @@ function OrderEditor(props)
         setOrderPaymentOpen(false);
     }
 
+    function updateCurrentOrderNotes(notes)
+    {
+        //Update the order Notes
+        UpdateOrderNotes({variables:{orderId: currentOrderData.id, notes:notes}});
+
+        //Used to close the settings window
+        setOrderSettingsOpen(false);
+    }
+
     function updateCurrentOrderPaymentStatus(paymentStatus, paymentMethod, subtotal, orderTotal, discountAmount)
     {
         //Update the payment status
@@ -233,11 +255,12 @@ function OrderEditor(props)
                 : 
                 (
                     <section id="OrderPayment" className="panel sixty">
-                        <Payment 
+                        <Payment
                             currentOrder={currentOrderData}
                             cancelOrderPayment={()=>{setOrderPaymentOpen(false);}} 
                             changeOrderStatus={updateCurrentOrderStatus}
                             changeOrderPaymentStatus={updateCurrentOrderPaymentStatus}
+                            updateordernotes={updateCurrentOrderNotes}
                         />
                     </section>
                 )
@@ -262,9 +285,10 @@ function OrderEditor(props)
                 :
                 (
                     <section id="OrderSettings" className="panel forty">
-                        <OrderSettings 
+                        <OrderSettings
                             closeOrderSettings={()=>{setOrderSettingsOpen(false);}} //Used to close the settings window
-                            existingOrder={currentOrderData} //Passing data about current order
+                            existingOrder={currentOrderData}
+                            UpdateOrderNotes={updateCurrentOrderNotes}//Passing data about current order
                         />
                     </section>
                 )

@@ -121,6 +121,7 @@ export const ORDER_QUERY = gql`
             type,
             status,
             paymentstatus,
+            notes,
             paymentmethod,
             staff_member
             {
@@ -205,6 +206,20 @@ export const UPDATE_ORDER_STATUS = gql`
     }
 `;
 
+export const UPDATE_ORDER_NOTES = gql`
+    mutation UpdateOrderNotes(
+        $orderId: ID!,
+        $notes: String!
+    )
+    {
+        updateOrder(input:{where:{id:$orderId},data:{
+            notes: $notes
+        }})
+        {
+            order{id}
+        }
+    }
+`;
 
 export const ADD_LINE_ITEM = gql`
     mutation AddLineItem(

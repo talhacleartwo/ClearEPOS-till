@@ -249,8 +249,8 @@ function ProductEditor(props)
                         <h3>{!existingItem.id ? "Add " : "Edit "} Item '{productModel.name}'</h3>
                     </header>
                     <div className="editorTabsWrapper">
-                        <Tabs startTab={getStartTab(productModel)} 
-                            tabHeaders={getTabHeaders(productModel)} 
+                        <Tabs startTab={getStartTab(productModel)}
+                            tabHeaders={getTabHeaders(productModel)}
                             tabBodys={getTabBodies(productModel)}
                         />
                         
