@@ -8,6 +8,13 @@ import CustomerSearchResults from '../controls/CustomerSearchResults';
 import { useSetCurrentOrder } from '../../../contexts/OrderContext';
 import StaffSearchResults from '../controls/StaffSearchResults';
 
+import CustomersResults from '../controls/CustomersResults';
+import CustomerForm from '../controls/CustomerForm';
+import AddressesResults from '../controls/AddressesResults';
+import AddressForm from '../controls/AddressForm';
+
+import {ORDER_QUERY, UPDATE_ORDER_STATUS} from "../../../service/queries";
+
 const BLANK_ORDER = {
     type: null,
     source: 'direct',
@@ -15,6 +22,8 @@ const BLANK_ORDER = {
     customer : null,
     address: null
 };
+
+
 
 const CREATE_ORDER_MUTATION = gql`
     mutation CreateOrder(
@@ -61,10 +70,70 @@ const CREATE_ORDER_MUTATION = gql`
         }
     }
 `;
-
+const CREATE_CUSTOMER_MUTATION = gql`
+    mutation CreateCustomer(
+        $email : String!,
+        $firstname : String!,
+        $lastname : String!,
+        $mobilephone : String!,
+        $birthdate: Date!
+    ) {
+        createCustomer(
+            input: {
+                data: {
+                    emailaddress1: $email,
+                    firstname: $firstname,
+                    lastname: $lastname,
+                    mobilephone: $mobilephone,
+                    birthdate: $birthdate
+                }
+            }
+        )
+        {
+            customer {
+                id
+                firstname
+                lastname
+            }
+        }
+    }
+`;
+const CREATE_ADDRESS_MUTATION = gql`
+    mutation CreateAddress(
+        $name : String!,
+        $line1 : String!,
+        $line2 : String!,
+        $postalcode : String!,
+        $city: String!,
+        $country: String!,
+        $customer_id : ID!
+    ) {
+        createAddress(
+            input: {
+            data: {
+                name: $name,
+                line1: $line1,
+                line2: $line2,
+                city: $city,
+                postalcode: $postalcode,
+                county: $country,
+                customer: $customer_id
+            }
+        }
+    )
+        {
+            address{
+                line1
+                line2
+                postalcode
+        }
+        }
+    }
+`;
+var customer_id = "";
 function CreateOrderPanel(props)
 {
-
+    var create_customer = null;
     const [newOrder,updateNewOrder] = useState(BLANK_ORDER);
     const [showSection,changeShowSection] = useState('type');
     const [currentCustomerSearch, setCurrentCustomerSearch] = useState('');
@@ -74,6 +143,19 @@ function CreateOrderPanel(props)
             openOrder(data);
         }
     });
+
+    const [CreateCustomer, { loading: customermutationLoading, error: CustomermutationError }] = useMutation(CREATE_CUSTOMER_MUTATION, {
+        onCompleted(data){
+            changeShowSection('customers');
+        }
+    });
+    const [CreateAddress, { loading: addressmutationLoading, error: addressmutationError }] = useMutation(CREATE_ADDRESS_MUTATION, {
+        onCompleted(data){
+            changeShowSection('customers');
+        }
+    });
+
+
 
     //Use our custom hook to enable us to set the current order after creating or opening one
     var setCurrentOrder = useSetCurrentOrder();
@@ -123,9 +205,12 @@ function CreateOrderPanel(props)
         nOrder.type = val;
         updateNewOrder(nOrder);
 
-        if(val !== "staff")
+        if(val === "collection" || val === "delivery")
         {
             changeShowSection('customer');
+        }
+        else if(val === "customers"){
+            changeShowSection('customers');
         }
         else
         {
@@ -188,6 +273,8 @@ function CreateOrderPanel(props)
         delete theOrder.customerData;
         delete theOrder.staffData;
         delete theOrder.addressData;
+        console.log("order query check : ");
+        console.log(theOrder);
         createNewOrder({variables:theOrder});
     }
 
@@ -212,11 +299,14 @@ function CreateOrderPanel(props)
         return(
             <>
                 <header className="withNav">
+                    {showSection === 'customerform' ? <div className="navbtn prev" onClick={() => changeShowSection('customers')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'addressform' ? <div className="navbtn prev" onClick={() => changeShowSection('customers')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'customers' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'customer' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'staff' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'summary' ? <div className="navbtn prev" onClick={() => changeShowSection('customer')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'editCustomer' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
-                    {showSection === 'editAddress' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'addresses' ? <div className="navbtn prev" onClick={() => changeShowSection('customers')}><i className="icon-prev"></i></div> : null}
                     <h3>Create Order</h3>
                     {showSection === 'type' && newOrder.type != null ? <div className="navbtn next" onClick={() => changeShowSection('customer')}><i className="icon-next"></i></div> : null}
                     {showSection === 'customer' && newOrder.customer != null ? <div className="navbtn next" onClick={() => changeShowSection('summary')}><i className="icon-next"></i></div> : null}
@@ -237,11 +327,35 @@ function CreateOrderPanel(props)
                     <div className={getTypeOptionClasses('collection')} data-value="collection" onClick={typeChanged}>Collection</div>
                     <div className={getTypeOptionClasses('delivery')} data-value="delivery" onClick={typeChanged}>Delivery</div>
                     <div className={getTypeOptionClasses('staff')} data-value="staff" onClick={typeChanged}>Staff</div>
+                    <div className={getTypeOptionClasses('customers')} data-value="customers" onClick={typeChanged}>Customers</div>
                 </div>
             </div>
         );
     }
 
+    function ShowCustomerForm(){
+        changeShowSection('customerform');
+    }
+
+    function CreateCustomerForm(data){
+
+        CreateCustomer({variables:{email:data.email , firstname:data.fname , lastname:data.lname , birthdate:data.date , mobilephone:data.phone}});
+
+    }
+
+    function renderCustomers(){
+        return (
+
+            <div className="customerSearch">
+                <h4 className="center">Customers</h4>
+                {
+                    // <CustomersResults updateFunction={staffMemberSelected}/>
+                    <CustomersResults CustomerForm={ShowCustomerForm} renderaddress={showAddresses}/>
+                }
+            </div>
+
+        );
+    }
 
     function renderCustomerSearch()
     {
@@ -276,7 +390,6 @@ function CreateOrderPanel(props)
             </div>
         );
     }
-
 
     function renderSummarySection()
     {
@@ -406,15 +519,71 @@ function CreateOrderPanel(props)
         );
     }
 
+    function showAddresses(id){
+        customer_id = id;
+        changeShowSection('addresses');
+    }
+    function renderAddresses(){
+        return (
+            <div className="customerSearch">
+                <h4 className="center">Create New Customer</h4>
+                <button className="btn btn-success f_right" onClick={() => ShowAddressForm()}>New Address</button>
+                {
+                    <AddressesResults cust_id={customer_id}/>
+                }
+            </div>
+
+        );
+
+    }
+    function ShowAddressForm(){
+        changeShowSection('addressform');
+    }
+
+    function renderAddressForm(){
+        return (
+
+            <div className="customerSearch">
+                <h4 className="center">Create New Address</h4>
+                {
+                    // <CustomersResults updateFunction={staffMemberSelected}/>
+                    <AddressForm CustomerForm={ShowCustomerForm} form_submit = {CreateAddressForm}/>
+                }
+            </div>
+
+        );
+    }
+
+    function CreateAddressForm(data){
+        CreateAddress({variables:{name:data.name , line1:data.line1 , line2:data.line2 , postalcode:data.postalcode , city:data.city , country:data.country, customer_id:customer_id}});
+    }
+
+    function renderCustomerForm(){
+        return (
+
+            <div className="customerSearch">
+                <h4 className="center">Create New Customer</h4>
+                {
+                    // <CustomersResults updateFunction={staffMemberSelected}/>
+                    <CustomerForm CustomerForm={ShowCustomerForm} form_submit = {CreateCustomerForm}/>
+                }
+            </div>
+
+        );
+    }
     return (
         <section id="CreateOrder" className="panel forty">
             {renderCreatOrderNavigation()}
             {showSection === 'type' ? renderTypeSection() : null}
             {showSection === 'customer' ? renderCustomerSearch() : null}
+            {showSection === 'customers' ? renderCustomers() : null}
             {showSection === 'staff' ? renderStaffList() : null}
             {showSection === 'summary' ? renderSummarySection() : null}
             {showSection === 'editCustomer' ? renderCustomerEditSection() : null}
             {showSection === 'editAddress' ? renderAddressEditSection() : null}
+            {showSection === 'customerform' ? renderCustomerForm() : null}
+            {showSection === 'addressform' ? renderAddressForm() : null}
+            {showSection === 'addresses' ? renderAddresses() : null}
         </section>
     );
 }

@@ -251,8 +251,8 @@ function OrderEditor(props)
                             }
                         </div>
                     </section>
-                ) 
-                : 
+                )
+                :
                 (
                     <section id="OrderPayment" className="panel sixty">
                         <Payment
