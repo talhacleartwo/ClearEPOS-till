@@ -402,8 +402,10 @@ function CreateOrderPanel(props)
         return (
             <div className="customerSearch">
                 <h4 className="center">Customer</h4>
-                <button className="btn btn-success f_right" onClick={() => ShowCustomerForm()}>New Customer</button><br/>
-                <input type="number" pattern="\d*" className="search__customers" style={{marginTop : 40}} placeholder="Search Customers By Number" value={currentCustomerSearch} onChange={searchChanged}/>
+                <div>
+                    <button style={{width : "25%"}} className="btn btn-success f_right" onClick={() => ShowCustomerForm()}>New Customer</button>
+                    <input type="number" pattern="\d*" className="search__customers" style={{width : "70%"}} placeholder="Search Customers By Number" value={currentCustomerSearch} onChange={searchChanged}/>
+                </div>
                 {
                     currentCustomerSearch !== "" ? 
                         <CustomerSearchResults
@@ -520,7 +522,7 @@ function CreateOrderPanel(props)
                         <input type="text" name="mobilephone" autoComplete="off" defaultValue={newOrder.customerData.mobilephone} required />
                     </div>
                     <div className="group">
-                        <input type="submit" name="submit" value="submit" className="btn btn-success"/>
+                        <center><input style={{width : 100}} type="submit" value="Submit" className="btn btn-success"/></center>
                     </div>
                 </form>
             </div>
@@ -556,7 +558,7 @@ function CreateOrderPanel(props)
                         <label>Postcode*</label>
                         <input type="text" name="postalcode" autoComplete="off" defaultValue={newOrder.addressData.postalcode} required />
                     </div>
-                    <input type="submit" value="submit" className="btn btn-success"/>
+                    <center><input style={{width : 100}} type="submit" value="Submit" className="btn btn-success"/></center>
                 </form>
             </div>
         );

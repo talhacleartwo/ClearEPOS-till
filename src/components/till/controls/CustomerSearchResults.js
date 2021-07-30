@@ -57,7 +57,9 @@ function CustomerSearchResults(props)
 
     // console.log(data.customers);return false;
     return data.customers.map((customer) => (
-        <div style={{marginTop : 30}} className="customerMini" key={customer.id} >
+
+        <div style={{marginTop : 20}} className="customerMini" key={customer.id} >
+            <button className="btn btn-success f_right" onClick={() => props.AddressForm(customer.id)}>New Address</button>
             <div className="customer" data-customer={JSON.stringify(customer)} onClick={getCustomerUpdateFunction()}>
                 <div className="customerIcon"><i className="icon-person"></i></div>
                 <div className="content">
@@ -68,7 +70,7 @@ function CustomerSearchResults(props)
             {
                 !props.customerOnly ? (
                 <div className="addresses">
-                    <button className="btn btn-success f_right" onClick={() => props.AddressForm(customer.id)}>New Address</button><br/>
+
                     {
                         customer.addresses.map((address) => (
                             <div style={{marginTop : 20}} className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>

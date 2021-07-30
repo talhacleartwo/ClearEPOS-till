@@ -36,7 +36,7 @@ function AddressForm(props){
                 <label>Country</label>
                 <input type="text" name="country" autoComplete="off"/><br/>
 
-                <input type="submit" value="Submit" className="btn btn-success"/>
+                <center><input style={{width : 100}} type="submit" value="Submit" className="btn btn-success"/></center>
 
 
             </form>

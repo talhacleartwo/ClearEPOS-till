@@ -32,7 +32,7 @@ function CustomerForm(props){
                 <label>Birthdate</label>
                 <input type="date" name="date" autoComplete="off"/><br/>
 
-                <input type="submit" value="Submit" className="btn btn-success"/>
+                <center><input style={{width : 100}} type="submit" value="Submit" className="btn btn-success"/></center>
 
 
             </form>
