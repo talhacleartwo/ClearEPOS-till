@@ -175,6 +175,7 @@ const UPDATE_ADDRESS_MUTATION = gql`
 
 `;
 var customer_id = "";
+var changedtype = "";
 function CreateOrderPanel(props)
 {
     var create_customer = null;
@@ -258,7 +259,7 @@ function CreateOrderPanel(props)
         var nOrder = newOrder;
         nOrder.type = val;
         updateNewOrder(nOrder);
-
+        changedtype = val;
         if(val !== 'staff')
         {
             changeShowSection('customer');
@@ -359,7 +360,7 @@ function CreateOrderPanel(props)
                     {showSection === 'summary' ? <div className="navbtn prev" onClick={() => changeShowSection('customer')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'editCustomer' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'editAddress' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
-                    <h3>Create Order</h3>
+                    <h4>Create Order</h4>
                     {showSection === 'type' && newOrder.type != null ? <div className="navbtn next" onClick={() => changeShowSection('customer')}><i className="icon-next"></i></div> : null}
                     {showSection === 'customer' && newOrder.customer != null ? <div className="navbtn next" onClick={() => changeShowSection('summary')}><i className="icon-next"></i></div> : null}
                 </header>
@@ -403,7 +404,7 @@ function CreateOrderPanel(props)
             <div className="customerSearch">
                 <h4 className="center">Customer</h4>
                 <div>
-                    <button style={{width : "25%"}} className="btn btn-success f_right" onClick={() => ShowCustomerForm()}>New Customer</button>
+                    <button style={{width : "25%"}} className="btn btn-success btn-sm f_right" onClick={() => ShowCustomerForm()}>New Customer</button>
                     <input type="number" pattern="\d*" className="search__customers" style={{width : "70%"}} placeholder="Search Customers By Number" value={currentCustomerSearch} onChange={searchChanged}/>
                 </div>
                 {
@@ -413,6 +414,7 @@ function CreateOrderPanel(props)
                             updateFunction={updateFunctionToCall}
                             customerOnly={newOrder.type === 'collection'}
                             AddressForm={ShowAddressForm}
+                            Tab ={changedtype}
                         />
                     : null
                 }
@@ -522,7 +524,7 @@ function CreateOrderPanel(props)
                         <input type="text" name="mobilephone" autoComplete="off" defaultValue={newOrder.customerData.mobilephone} required />
                     </div>
                     <div className="group">
-                        <center><input style={{width : 100}} type="submit" value="Submit" className="btn btn-success"/></center>
+                        <input style={{width : 100}} type="submit" value="Submit" className="btn btn-success f_right"/>
                     </div>
                 </form>
             </div>
@@ -558,7 +560,7 @@ function CreateOrderPanel(props)
                         <label>Postcode*</label>
                         <input type="text" name="postalcode" autoComplete="off" defaultValue={newOrder.addressData.postalcode} required />
                     </div>
-                    <center><input style={{width : 100}} type="submit" value="Submit" className="btn btn-success"/></center>
+                    <input style={{width : 100}} type="submit" value="Submit" className="btn btn-success f_right"/>
                 </form>
             </div>
         );

@@ -59,7 +59,8 @@ function CustomerSearchResults(props)
     return data.customers.map((customer) => (
 
         <div style={{marginTop : 20}} className="customerMini" key={customer.id} >
-            <button className="btn btn-success f_right" onClick={() => props.AddressForm(customer.id)}>New Address</button>
+
+            <button className="btn btn-success btn-sm f_right" onClick={() => props.AddressForm(customer.id)}>New Address</button>
             <div className="customer" data-customer={JSON.stringify(customer)} onClick={getCustomerUpdateFunction()}>
                 <div className="customerIcon"><i className="icon-person"></i></div>
                 <div className="content">
