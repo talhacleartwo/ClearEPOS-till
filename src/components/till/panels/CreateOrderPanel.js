@@ -404,7 +404,7 @@ function CreateOrderPanel(props)
             <div className="customerSearch">
                 <h4 className="center">Customer</h4>
                 <div>
-                    <button style={{width : "25%"}} className="btn btn-success btn-sm f_right" onClick={() => ShowCustomerForm()}>New Customer</button>
+                    <button style={{width : "25%"}} className="btn btn-success btn-sm f_right" onClick={() => ShowCustomerForm()}>Add New</button>
                     <input type="number" pattern="\d*" className="search__customers" style={{width : "70%"}} placeholder="Search Customers By Number" value={currentCustomerSearch} onChange={searchChanged}/>
                 </div>
                 {
