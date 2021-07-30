@@ -56,37 +56,70 @@ function CustomerSearchResults(props)
     }
 
     // console.log(data.customers);return false;
-    return data.customers.map((customer) => (
+    if(props.Tab !== 'collection'){
+        return data.customers.map((customer) => (
 
-        <div style={{marginTop : 20}} className="customerMini" key={customer.id} >
+            <div style={{marginTop : 20}} className="customerMini" key={customer.id} >
 
-            <button className="btn btn-success btn-sm f_right" onClick={() => props.AddressForm(customer.id)}>New Address</button>
-            <div className="customer" data-customer={JSON.stringify(customer)} onClick={getCustomerUpdateFunction()}>
-                <div className="customerIcon"><i className="icon-person"></i></div>
-                <div className="content">
-                    <div className="name">{customer.firstname} {customer.lastname} </div>
-                    <div className="phone">{customer.mobilephone}</div>
+                <button className="btn btn-success btn-sm f_right" onClick={() => props.AddressForm(customer.id)}>New Address</button>
+                <div className="customer" data-customer={JSON.stringify(customer)} onClick={getCustomerUpdateFunction()}>
+                    <div className="customerIcon"><i className="icon-person"></i></div>
+                    <div className="content">
+                        <div className="name">{customer.firstname} {customer.lastname} </div>
+                        <div className="phone">{customer.mobilephone}</div>
+                    </div>
                 </div>
-            </div>
-            {
-                !props.customerOnly ? (
-                <div className="addresses">
+                {
+                    !props.customerOnly ? (
+                            <div className="addresses">
 
-                    {
-                        customer.addresses.map((address) => (
-                            <div style={{marginTop : 20}} className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
-                                <div className="addressIcon"><i className="icon-location"></i></div>
-                                <div className="content">
-                                    {address.name} | {address.postalcode}
-                                </div>
-                            </div>
-                        ))
-                    }
-                </div>)
-                : null
-            }
-        </div>
-    ));
+                                {
+                                    customer.addresses.map((address) => (
+                                        <div style={{marginTop : 20}} className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
+                                            <div className="addressIcon"><i className="icon-location"></i></div>
+                                            <div className="content">
+                                                {address.name} | {address.postalcode}
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>)
+                        : null
+                }
+            </div>
+        ));
+    } else {
+        return data.customers.map((customer) => (
+
+            <div style={{marginTop : 20}} className="customerMini" key={customer.id} >
+                <div className="customer" data-customer={JSON.stringify(customer)} onClick={getCustomerUpdateFunction()}>
+                    <div className="customerIcon"><i className="icon-person"></i></div>
+                    <div className="content">
+                        <div className="name">{customer.firstname} {customer.lastname} </div>
+                        <div className="phone">{customer.mobilephone}</div>
+                    </div>
+                </div>
+                {
+                    !props.customerOnly ? (
+                            <div className="addresses">
+
+                                {
+                                    customer.addresses.map((address) => (
+                                        <div style={{marginTop : 20}} className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
+                                            <div className="addressIcon"><i className="icon-location"></i></div>
+                                            <div className="content">
+                                                {address.name} | {address.postalcode}
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>)
+                        : null
+                }
+            </div>
+        ));
+    }
+
 }
 
 export default CustomerSearchResults;
