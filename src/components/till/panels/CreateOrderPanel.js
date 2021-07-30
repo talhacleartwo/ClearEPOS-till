@@ -8,9 +8,7 @@ import CustomerSearchResults from '../controls/CustomerSearchResults';
 import { useSetCurrentOrder } from '../../../contexts/OrderContext';
 import StaffSearchResults from '../controls/StaffSearchResults';
 
-import CustomersResults from '../controls/CustomersResults';
 import CustomerForm from '../controls/CustomerForm';
-import AddressesResults from '../controls/AddressesResults';
 import AddressForm from '../controls/AddressForm';
 
 import {ORDER_QUERY, UPDATE_ORDER_STATUS} from "../../../service/queries";
@@ -130,6 +128,52 @@ const CREATE_ADDRESS_MUTATION = gql`
         }
     }
 `;
+const UPDATE_CUSTOMER_MUTATION = gql`
+
+    mutation updatecustomer(
+        $id: ID!,
+        $fname : String!,
+        $lname : String!,
+        $phone : String!
+    )
+    {
+        updateCustomer(input:{where:{id:$id},data:{
+            firstname : $fname,
+            lastname : $lname,
+            mobilephone : $phone
+        }})
+        {
+            customer{id}
+        }
+    }
+
+`;
+const UPDATE_ADDRESS_MUTATION = gql`
+
+    mutation updateaddress(
+        $id: ID!,
+        $name : String!,
+        $line1 : String!,
+        $line2 : String!
+        $postalcode: String!,
+        $city : String!,
+        $country : String!
+    )
+    {
+        updateAddress(input:{where:{id:$id},data:{
+            name : $name,
+            line1 : $line1,
+            line2 : $line2,
+            postalcode : $postalcode,
+            city : $city,
+            county : $country
+        }})
+        {
+            address{id}
+        }
+    }
+
+`;
 var customer_id = "";
 function CreateOrderPanel(props)
 {
@@ -146,12 +190,22 @@ function CreateOrderPanel(props)
 
     const [CreateCustomer, { loading: customermutationLoading, error: CustomermutationError }] = useMutation(CREATE_CUSTOMER_MUTATION, {
         onCompleted(data){
-            changeShowSection('customers');
+            changeShowSection('customer');
         }
     });
     const [CreateAddress, { loading: addressmutationLoading, error: addressmutationError }] = useMutation(CREATE_ADDRESS_MUTATION, {
         onCompleted(data){
-            changeShowSection('addresses');
+            changeShowSection('customer');
+        }
+    });
+    const [UpdateCustomer, { loading: updatecustomermutationLoading, error: updatecustomermutationError }] = useMutation(UPDATE_CUSTOMER_MUTATION, {
+        onCompleted(data){
+            changeShowSection('customer');
+        }
+    });
+    const [UpdateAddress, { loading: updateaddressmutationLoading, error: updateaddressmutationError }] = useMutation(UPDATE_ADDRESS_MUTATION, {
+        onCompleted(data){
+            changeShowSection('customer');
         }
     });
 
@@ -205,12 +259,9 @@ function CreateOrderPanel(props)
         nOrder.type = val;
         updateNewOrder(nOrder);
 
-        if(val === "collection" || val === "delivery")
+        if(val !== 'staff')
         {
             changeShowSection('customer');
-        }
-        else if(val === "customers"){
-            changeShowSection('customers');
         }
         else
         {
@@ -257,14 +308,16 @@ function CreateOrderPanel(props)
         changeShowSection('summary');
     }
 
-    function updateCustomer(event)
+    function updateCustomer(event , cust_id)
     {
-
+        event.preventDefault();
+        UpdateCustomer({variables:{id:cust_id , fname : event.target.firstname.value , lname:event.target.lastname.value , phone:event.target.mobilephone.value}});
     }
 
-    function updateAddress(event)
+    function updateAddress(event , address_id)
     {
-
+        event.preventDefault();
+        UpdateAddress({variables:{id:address_id , name : event.target.name.value , line1:event.target.line1.value , line2:event.target.line2.value , postalcode: event.target.postalcode.value, city:event.target.city.value , country:event.target.county.value}});
     }
 
     function createOrder(nOrder)
@@ -299,14 +352,13 @@ function CreateOrderPanel(props)
         return(
             <>
                 <header className="withNav">
-                    {showSection === 'customerform' ? <div className="navbtn prev" onClick={() => changeShowSection('customers')}><i className="icon-prev"></i></div> : null}
-                    {showSection === 'addressform' ? <div className="navbtn prev" onClick={() => changeShowSection('customers')}><i className="icon-prev"></i></div> : null}
-                    {showSection === 'customers' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'customerform' ? <div className="navbtn prev" onClick={() => changeShowSection('customer')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'addressform' ? <div className="navbtn prev" onClick={() => changeShowSection('customer')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'customer' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'staff' ? <div className="navbtn prev" onClick={() => changeShowSection('type')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'summary' ? <div className="navbtn prev" onClick={() => changeShowSection('customer')}><i className="icon-prev"></i></div> : null}
                     {showSection === 'editCustomer' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
-                    {showSection === 'addresses' ? <div className="navbtn prev" onClick={() => changeShowSection('customers')}><i className="icon-prev"></i></div> : null}
+                    {showSection === 'editAddress' ? <div className="navbtn prev" onClick={() => changeShowSection('summary')}><i className="icon-prev"></i></div> : null}
                     <h3>Create Order</h3>
                     {showSection === 'type' && newOrder.type != null ? <div className="navbtn next" onClick={() => changeShowSection('customer')}><i className="icon-next"></i></div> : null}
                     {showSection === 'customer' && newOrder.customer != null ? <div className="navbtn next" onClick={() => changeShowSection('summary')}><i className="icon-next"></i></div> : null}
@@ -327,7 +379,6 @@ function CreateOrderPanel(props)
                     <div className={getTypeOptionClasses('collection')} data-value="collection" onClick={typeChanged}>Collection</div>
                     <div className={getTypeOptionClasses('delivery')} data-value="delivery" onClick={typeChanged}>Delivery</div>
                     <div className={getTypeOptionClasses('staff')} data-value="staff" onClick={typeChanged}>Staff</div>
-                    <div className={getTypeOptionClasses('customers')} data-value="customers" onClick={typeChanged}>Customers</div>
                 </div>
             </div>
         );
@@ -343,21 +394,6 @@ function CreateOrderPanel(props)
 
     }
 
-    function renderCustomers(){
-        return (
-
-            <div className="customerSearch">
-                <h4 className="center">Customers</h4>
-                <button className="btn btn-success f_right" onClick={() => ShowCustomerForm()}>New Customer</button><br/>
-                {
-                    // <CustomersResults updateFunction={staffMemberSelected}/>
-                    <CustomersResults CustomerForm={ShowCustomerForm} renderaddress={showAddresses}/>
-                }
-            </div>
-
-        );
-    }
-
     function renderCustomerSearch()
     {
         if(newOrder.source === 'staff') return null;
@@ -366,14 +402,16 @@ function CreateOrderPanel(props)
         return (
             <div className="customerSearch">
                 <h4 className="center">Customer</h4>
-                <input type="number" pattern="\d*" className="search__customers" placeholder="Search Customers By Number" value={currentCustomerSearch} onChange={searchChanged}/>
+                <button className="btn btn-success f_right" onClick={() => ShowCustomerForm()}>New Customer</button><br/>
+                <input type="number" pattern="\d*" className="search__customers" style={{marginTop : 40}} placeholder="Search Customers By Number" value={currentCustomerSearch} onChange={searchChanged}/>
                 {
                     currentCustomerSearch !== "" ? 
-                        <CustomerSearchResults 
-                        search={currentCustomerSearch} 
-                        updateFunction={updateFunctionToCall}
-                        customerOnly={newOrder.type === 'collection'}
-                        /> 
+                        <CustomerSearchResults
+                            search={currentCustomerSearch}
+                            updateFunction={updateFunctionToCall}
+                            customerOnly={newOrder.type === 'collection'}
+                            AddressForm={ShowAddressForm}
+                        />
                     : null
                 }
             </div>
@@ -468,18 +506,21 @@ function CreateOrderPanel(props)
     {
         return(
             <div className="section editCustomer">
-                <form onSubmit={updateCustomer}> 
+                <form onSubmit={(event) => updateCustomer(event , newOrder.customerData.id)}>
                     <div class="group">
                         <label>First Name*</label>
-                        <input type="text" name="firstname" value={newOrder.customerData.firstname} required />
+                        <input type="text" name="firstname" autoComplete="off" defaultValue={newOrder.customerData.firstname}  required />
                     </div>
                     <div class="group">
                         <label>Last Name</label>
-                        <input type="text" name="firstname" value={newOrder.customerData.lastname}  />
+                        <input type="text" name="lastname" autoComplete="off" defaultValue={newOrder.customerData.lastname}  />
                     </div>
                     <div class="group">
                         <label>Telephone*</label>
-                        <input type="text" name="mobilephone" value={newOrder.customerData.mobilephone} required />
+                        <input type="text" name="mobilephone" autoComplete="off" defaultValue={newOrder.customerData.mobilephone} required />
+                    </div>
+                    <div className="group">
+                        <input type="submit" name="submit" value="submit" className="btn btn-success"/>
                     </div>
                 </form>
             </div>
@@ -490,54 +531,38 @@ function CreateOrderPanel(props)
     {
         return(
             <div className="section editAddress">
-                <form onSubmit={updateAddress}> 
+                <form onSubmit={(event) => updateAddress(event , newOrder.addressData.id)}>
                     <div class="group">
                         <label>Name*</label>
-                        <input type="text" name="name" value={newOrder.addressData.name} required />
+                        <input type="text" name="name" autoComplete="off" defaultValue={newOrder.addressData.name} required />
                     </div>
                     <div class="group">
                         <label>Line 1*</label>
-                        <input type="text" name="line1" value={newOrder.addressData.line1} required />
+                        <input type="text" name="line1" autoComplete="off" defaultValue={newOrder.addressData.line1} required />
                     </div>
                     <div class="group">
                         <label>Line 2</label>
-                        <input type="text" name="line2" value={newOrder.addressData.line2}  />
+                        <input type="text" name="line2" autoComplete="off" defaultValue={newOrder.addressData.line2}  />
                     </div>
                     <div class="group">
                         <label>City*</label>
-                        <input type="text" name="city" value={newOrder.addressData.city} required />
+                        <input type="text" name="city" autoComplete="off" defaultValue={newOrder.addressData.city} required />
                     </div>
                     <div class="group">
                         <label>County</label>
-                        <input type="text" name="county" value={newOrder.addressData.city} />
+                        <input type="text" name="county" autoComplete="off" defaultValue={newOrder.addressData.city} />
                     </div>
                     <div class="group">
                         <label>Postcode*</label>
-                        <input type="text" name="postalcode" value={newOrder.addressData.postalcode} required />
+                        <input type="text" name="postalcode" autoComplete="off" defaultValue={newOrder.addressData.postalcode} required />
                     </div>
+                    <input type="submit" value="submit" className="btn btn-success"/>
                 </form>
             </div>
         );
     }
-
-    function showAddresses(id){
-        customer_id = id;
-        changeShowSection('addresses');
-    }
-    function renderAddresses(){
-        return (
-            <div className="customerSearch">
-                <h4 className="center">Addresses</h4>
-                <button className="btn btn-success f_right" onClick={() => ShowAddressForm()}>New Address</button><br/>
-                {
-                    <AddressesResults cust_id={customer_id}/>
-                }
-            </div>
-
-        );
-
-    }
-    function ShowAddressForm(){
+    function ShowAddressForm(cust_id){
+        customer_id = cust_id;
         changeShowSection('addressform');
     }
 
@@ -577,14 +602,12 @@ function CreateOrderPanel(props)
             {renderCreatOrderNavigation()}
             {showSection === 'type' ? renderTypeSection() : null}
             {showSection === 'customer' ? renderCustomerSearch() : null}
-            {showSection === 'customers' ? renderCustomers() : null}
             {showSection === 'staff' ? renderStaffList() : null}
             {showSection === 'summary' ? renderSummarySection() : null}
             {showSection === 'editCustomer' ? renderCustomerEditSection() : null}
             {showSection === 'editAddress' ? renderAddressEditSection() : null}
             {showSection === 'customerform' ? renderCustomerForm() : null}
             {showSection === 'addressform' ? renderAddressForm() : null}
-            {showSection === 'addresses' ? renderAddresses() : null}
         </section>
     );
 }

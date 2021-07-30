@@ -18,19 +18,19 @@ function CustomerForm(props){
             <form onSubmit={() => SubmitForm(this)}>
 
                 <label>First Name</label>
-                <input type="text" name="fname" /><br/>
+                <input type="text" name="fname" autoComplete="off" /><br/>
 
                 <label>Last Name</label>
-                <input type="text" name="lname"/><br/>
+                <input type="text" name="lname" autoComplete="off"/><br/>
 
                 <label>Email</label>
-                <input type="email" name="email"/><br/>
+                <input type="email" name="email" autoComplete="off"/><br/>
 
                 <label>MobilePhone</label>
-                <input type="text" name="phone"/><br/>
+                <input type="text" name="phone" autoComplete="off"/><br/>
 
                 <label>Birthdate</label>
-                <input type="date" name="date"/><br/>
+                <input type="date" name="date" autoComplete="off"/><br/>
 
                 <input type="submit" value="Submit" className="btn btn-success"/>
 

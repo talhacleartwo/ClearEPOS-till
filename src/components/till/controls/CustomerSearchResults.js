@@ -44,7 +44,8 @@ function CustomerSearchResults(props)
 
     //Query
     const { loading, error, data } = useQuery(queryToUse,{
-        variables: {telsearch : props.search}
+        variables: {telsearch : props.search},
+        fetchPolicy: "network-only"
     });
     if (loading) return null;
     if (error) return `Error! ${error}`;
@@ -54,9 +55,9 @@ function CustomerSearchResults(props)
         return props.customerOnly ? props.updateFunction : null;
     }
 
-    //console.log(data);
+    // console.log(data.customers);return false;
     return data.customers.map((customer) => (
-        <div className="customerMini" key={customer.id} >
+        <div style={{marginTop : 30}} className="customerMini" key={customer.id} >
             <div className="customer" data-customer={JSON.stringify(customer)} onClick={getCustomerUpdateFunction()}>
                 <div className="customerIcon"><i className="icon-person"></i></div>
                 <div className="content">
@@ -67,9 +68,10 @@ function CustomerSearchResults(props)
             {
                 !props.customerOnly ? (
                 <div className="addresses">
+                    <button className="btn btn-success f_right" onClick={() => props.AddressForm(customer.id)}>New Address</button><br/>
                     {
                         customer.addresses.map((address) => (
-                            <div className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
+                            <div style={{marginTop : 20}} className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
                                 <div className="addressIcon"><i className="icon-location"></i></div>
                                 <div className="content">
                                     {address.name} | {address.postalcode}

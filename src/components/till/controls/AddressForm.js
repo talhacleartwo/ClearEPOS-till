@@ -19,22 +19,22 @@ function AddressForm(props){
             <form onSubmit={() => SubmitForm(this)}>
 
                 <label>Name</label>
-                <input type="text" name="name" /><br/>
+                <input type="text" name="name" autoComplete="off" /><br/>
 
                 <label>Line1</label>
-                <input type="text" name="line1"/><br/>
+                <input type="text" name="line1" autoComplete="off"/><br/>
 
                 <label>line2</label>
-                <input type="text" name="line2"/><br/>
+                <input type="text" name="line2" autoComplete="off"/><br/>
 
                 <label>PostalCode</label>
-                <input type="text" name="postalcode"/><br/>
+                <input type="text" name="postalcode" autoComplete="off"/><br/>
 
                 <label>City</label>
-                <input type="text" name="city"/><br/>
+                <input type="text" name="city" autoComplete="off"/><br/>
 
                 <label>Country</label>
-                <input type="text" name="country"/><br/>
+                <input type="text" name="country" autoComplete="off"/><br/>
 
                 <input type="submit" value="Submit" className="btn btn-success"/>
 
