@@ -151,7 +151,7 @@ function CreateOrderPanel(props)
     });
     const [CreateAddress, { loading: addressmutationLoading, error: addressmutationError }] = useMutation(CREATE_ADDRESS_MUTATION, {
         onCompleted(data){
-            changeShowSection('customers');
+            changeShowSection('addresses');
         }
     });
 
@@ -348,6 +348,7 @@ function CreateOrderPanel(props)
 
             <div className="customerSearch">
                 <h4 className="center">Customers</h4>
+                <button className="btn btn-success f_right" onClick={() => ShowCustomerForm()}>New Customer</button><br/>
                 {
                     // <CustomersResults updateFunction={staffMemberSelected}/>
                     <CustomersResults CustomerForm={ShowCustomerForm} renderaddress={showAddresses}/>
@@ -526,8 +527,8 @@ function CreateOrderPanel(props)
     function renderAddresses(){
         return (
             <div className="customerSearch">
-                <h4 className="center">Create New Customer</h4>
-                <button className="btn btn-success f_right" onClick={() => ShowAddressForm()}>New Address</button>
+                <h4 className="center">Addresses</h4>
+                <button className="btn btn-success f_right" onClick={() => ShowAddressForm()}>New Address</button><br/>
                 {
                     <AddressesResults cust_id={customer_id}/>
                 }

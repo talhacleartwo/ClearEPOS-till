@@ -9,6 +9,9 @@ const Fetch_Addresses = gql`
                 id,
                 name,
                 line1,
+                line2,
+                city,
+                county
             }
         }
     }
@@ -34,11 +37,14 @@ function AddressesResults(props)
 
         <div>
             {data.customer.addresses.map((address, index) =>
-                <div className="staffMini" key={address.id}>
-                    <div className="staff" data-staffmember={JSON.stringify(address)}>
-                        <div className="staffIcon"><i className="icon-person"></i></div>
+                <div className="addressmini" key={address.id}>
+                    <div className="address" data-staffmember={JSON.stringify(address)}>
+                        {/*<div className="staffIcon"><i className="icon-person"></i></div>*/}
                         <div className="content">
-                            <div className="name" key={index}>{address.name} {address.line1} </div>
+                            <div className="name" key={index}><h3>{address.name}</h3></div>
+                            <p><b>Line1</b> : {address.line1}</p>
+                            <p><b>Line2</b> : {address.line2}</p>
+                            <p><b>City</b> : {address.city}</p>
                         </div>
                     </div>
                 </div>

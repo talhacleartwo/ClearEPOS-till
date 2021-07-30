@@ -7,7 +7,8 @@ const Fetch_CUSTOMERS = gql`
         {
             id,
             firstname,
-            lastname
+            lastname,
+            emailaddress1
         }
     }
 `;
@@ -29,14 +30,14 @@ function CustomersResults(props)
     return (
 
         <div>
-            <button className="btn btn-success f_right" onClick={() => props.CustomerForm()}>New Customer</button>
             {data.customers.map((customer, index) =>
                 <div className="staffMini" key={customer.id} onClick={() => props.renderaddress(customer.id)}>
                     <div className="staff" data-staffmember={JSON.stringify(customer)}>
                         <div className="staffIcon"><i className="icon-person"></i></div>
                         <div className="content">
-                            <div className="name" key={index}>{customer.firstname} {customer.lastname} </div>
+                            <div className="name" key={index}><h3>{customer.firstname} {customer.lastname}</h3></div>
                         </div>
+                        <p style = {{ marginLeft : 40 }}>{customer.emailaddress1}</p>
                     </div>
                 </div>
             )}
