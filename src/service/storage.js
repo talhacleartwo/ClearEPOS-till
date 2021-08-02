@@ -1,6 +1,7 @@
 const LOCAL_CONFIG_KEY = "appConfig";
 const CATALOG_CACHE_KEY = "catalogCache";
 const DEVICES_CACHE_KEY = "deviceCache";
+const SETTINGS_KEY = "settingscache";
 
 /*const fetchTodos = async () => {
 
@@ -32,6 +33,19 @@ export function setDevicesCache(deviceData)
 export function deleteDevicesCache()
 {
     localStorage.removeItem(DEVICES_CACHE_KEY);
+    localStorage.removeItem(SETTINGS_KEY);
+}
+export function hasSettingsCache()
+{
+    return (localStorage.getItem(SETTINGS_KEY) === null ? false : true);
+}
+export function setSettingsCache(deviceData)
+{
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(deviceData));
+}
+export function deleteSettingsCache()
+{
+    localStorage.removeItem(SETTINGS_KEY);
 }
 export function hasCatalogCache()
 {

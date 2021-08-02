@@ -8,7 +8,7 @@ import {useUserUpdate} from '../../contexts/UserContext';
 
 import {DEVICES_QUERY} from '../../service/queries';
 
-import {deleteDevicesCache, setDevicesCache} from "../../service/storage";
+import {deleteDevicesCache, setDevicesCache, setSettingsCache} from "../../service/storage";
 
 const LOGIN_QUERY = gql`
 query AttemptLogin($code: String!){
@@ -71,12 +71,20 @@ function SignOn()
 
     const [getDevices] = useLazyQuery(DEVICES_QUERY, {
         onCompleted: (data) =>{
-            // console.log(data);
-            _storage.setDevicesCache(data.devices);window.location.reload();
+            _storage.setDevicesCache(data.devices);
+            for (let i = 0; i < data.devices.length; i++) {
+                if(data.devices[i].type === 'printer'){
+                    _storage.setSettingsCache({activePrinter : data.devices[i].id});
+                    break;
+                } else {
+                    _storage.setSettingsCache({activePrinter : null});
+                }
+            }
+            window.location.reload();
         }
     })
     
-    
+
     function keyPress(key)
     {
         var val = key.target.dataset.value;

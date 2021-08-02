@@ -21,7 +21,6 @@ import CreateOrderPanel from '../till/panels/CreateOrderPanel';
 import ManageOrdersPanel from '../till/panels/ManageOrdersPanel';
 import OrderEditor from '../till/screens/ordereditor/OrderEditor';
 import SignOn from '../toplevel/SignOn';
-import {hasDevicesCache} from "../../service/storage";
 
 function Till()
 {
@@ -40,8 +39,19 @@ function Till()
 
     const [getDevices] = useLazyQuery(DEVICES_QUERY, {
         onCompleted: (data) =>{
+
             _storage.setDevicesCache(data.devices);
+            for (let i = 0; i < data.devices.length; i++) {
+                if(data.devices[i].type === 'printer'){
+                    _storage.setSettingsCache({activePrinter : data.devices[i].id});
+                    break;
+                } else {
+                    _storage.setSettingsCache({activePrinter : null});
+                }
+            }
+            window.location.reload();
             setAwaitingCache(false);
+
         }
     })
 
