@@ -75,7 +75,7 @@ function CustomerSearchResults(props)
 
                                 {
                                     customer.addresses.map((address) => (
-                                        <div style={{marginTop : 20}} className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
+                                        <div style={{marginTop : 5}} className="address" key={address.id} data-customer={JSON.stringify(customer)} data-value={JSON.stringify(address)} onClick={props.updateFunction}>
                                             <div className="addressIcon"><i className="icon-location"></i></div>
                                             <div className="content">
                                                 {address.name} | {address.postalcode}
@@ -83,6 +83,7 @@ function CustomerSearchResults(props)
                                         </div>
                                     ))
                                 }
+
                             </div>)
                         : null
                 }
