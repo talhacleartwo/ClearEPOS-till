@@ -1,17 +1,15 @@
 import {useState} from 'react';
 
-import { gql, useMutation } from '@apollo/client';
+import {gql, useMutation} from '@apollo/client';
 
 import CustomerSearchResults from '../controls/CustomerSearchResults';
 
 //Contexts
-import { useSetCurrentOrder } from '../../../contexts/OrderContext';
+import {useSetCurrentOrder} from '../../../contexts/OrderContext';
 import StaffSearchResults from '../controls/StaffSearchResults';
 
 import CustomerForm from '../controls/CustomerForm';
 import AddressForm from '../controls/AddressForm';
-
-import {ORDER_QUERY, UPDATE_ORDER_STATUS} from "../../../service/queries";
 
 const BLANK_ORDER = {
     type: null,
@@ -184,7 +182,6 @@ var customer_id = "";
 var changedtype = "";
 function CreateOrderPanel(props)
 {
-    var create_customer = null;
     const [newOrder,updateNewOrder] = useState(BLANK_ORDER);
     const [showSection,changeShowSection] = useState('type');
     const [currentCustomerSearch, setCurrentCustomerSearch] = useState('');
@@ -197,7 +194,7 @@ function CreateOrderPanel(props)
 
     const [CreateCustomer, { loading: customermutationLoading, error: CustomermutationError }] = useMutation(CREATE_CUSTOMER_MUTATION, {
         onCompleted(data){
-            changeShowSection('customer');
+            CreatedCustomerSelected(data);
         }
     });
 
@@ -307,6 +304,19 @@ function CreateOrderPanel(props)
         nOrder.addressData = val;
         updateNewOrder(nOrder);
         changeShowSection('summary');
+    }
+
+    function CreatedCustomerSelected(data){
+
+        if(changedtype === 'collection'){
+            var nOrder = newOrder;
+            nOrder.customer = data.createCustomer.customer.id;
+            nOrder.customerData = data.createCustomer.customer;
+            updateNewOrder(nOrder);
+            changeShowSection('summary');
+        } else{
+            changeShowSection('addressform');
+        }
     }
 
     function customerSelected(event)
