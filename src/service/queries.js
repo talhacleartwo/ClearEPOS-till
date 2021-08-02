@@ -273,3 +273,19 @@ export const REMOVE_LINE_ITEM = gql`
         {orderLine{id}}
     }
 `;
+
+export const DEVICES_QUERY = gql`
+    {
+      devices {
+        id,
+        name,
+        ip,
+        macaddress,
+        site{
+            id,
+            name
+        },
+        type
+      }
+    }
+`;

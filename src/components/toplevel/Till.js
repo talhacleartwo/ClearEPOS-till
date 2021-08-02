@@ -3,7 +3,7 @@ import {React, useState} from "react";
 import * as _storage from "../../service/storage";
 
 //Apollo
-import {useLazyQuery} from "@apollo/client";
+import {gql, useLazyQuery} from "@apollo/client";
 
 //Styles
 import '../../Till.css';
@@ -14,13 +14,14 @@ import {useCurrentUser} from '../../contexts/UserContext';
 
 //Queries
 import {CATALOG_CACHE_QUERY} from '../../service/queries';
+import {DEVICES_QUERY} from '../../service/queries';
 
 //Components
 import CreateOrderPanel from '../till/panels/CreateOrderPanel';
 import ManageOrdersPanel from '../till/panels/ManageOrdersPanel';
 import OrderEditor from '../till/screens/ordereditor/OrderEditor';
 import SignOn from '../toplevel/SignOn';
-
+import {hasDevicesCache} from "../../service/storage";
 
 function Till()
 {
@@ -37,6 +38,12 @@ function Till()
         setAwaitingCache(false);
     }});
 
+    const [getDevices] = useLazyQuery(DEVICES_QUERY, {
+        onCompleted: (data) =>{
+            _storage.setDevicesCache(data.devices);
+            setAwaitingCache(false);
+        }
+    })
 
     if(currentUser)
     {
@@ -45,6 +52,12 @@ function Till()
         {
             return (
                 <div className="CacheLoadNeeded" onClick={()=>{fetchCatalogCache(); setAwaitingCache(true);}}>Click to load cache</div>
+            );
+        }
+        if(!_storage.hasDevicesCache() && !awaitingCache)
+        {
+            return (
+                <div className="CacheLoadNeeded" onClick={()=>{getDevices(); setAwaitingCache(true);}}>Click to load Device cache</div>
             );
         }
 

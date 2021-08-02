@@ -5,6 +5,9 @@ import * as _storage from "../../service/storage";
 import styles from '../../cssmodules/signon.module.css';
 
 import {useUserUpdate} from '../../contexts/UserContext';
+
+import {DEVICES_QUERY} from '../../service/queries';
+
 import {deleteDevicesCache, setDevicesCache} from "../../service/storage";
 
 const LOGIN_QUERY = gql`
@@ -32,23 +35,6 @@ query AttemptLogin($code: String!){
         }
     }
 }`;
-
-const DEVICE_QUERY = gql`
-    
-    {
-      devices {
-        id,
-        name,
-        ip,
-        macaddress,
-        site{
-            id,
-            name
-        },
-        type
-      }
-    }
-`;
 function SignOn()
 {
     
@@ -83,7 +69,7 @@ function SignOn()
         }
     })
 
-    const [getDevices] = useLazyQuery(DEVICE_QUERY, {
+    const [getDevices] = useLazyQuery(DEVICES_QUERY, {
         onCompleted: (data) =>{
             // console.log(data);
             _storage.setDevicesCache(data.devices);window.location.reload();
@@ -162,7 +148,7 @@ function SignOn()
                                 <li onClick={()=>{getDevices()}}>Refresh Device Cache</li>
                                 <li onClick={()=>{
                                     _storage.deleteDevicesCache();window.location.reload();
-                                }}>Clear Catalog Cache</li>
+                                }}>Clear Devices Cache</li>
                             </ul>
                         </div>
                     )

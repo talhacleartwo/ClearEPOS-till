@@ -21,9 +21,9 @@ const DEVICES_CACHE_KEY = "deviceCache";
 
 
 /* Catalog Cache */
-export function hasCatalogCache()
+export function hasDevicesCache()
 {
-    return (localStorage.getItem(CATALOG_CACHE_KEY) === null ? false : true);
+    return (localStorage.getItem(DEVICES_CACHE_KEY) === null ? false : true);
 }
 export function setDevicesCache(deviceData)
 {
@@ -32,6 +32,10 @@ export function setDevicesCache(deviceData)
 export function deleteDevicesCache()
 {
     localStorage.removeItem(DEVICES_CACHE_KEY);
+}
+export function hasCatalogCache()
+{
+    return (localStorage.getItem(CATALOG_CACHE_KEY) === null ? false : true);
 }
 export function setCatalogCache(catalog)
 {
