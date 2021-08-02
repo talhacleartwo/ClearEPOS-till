@@ -21,8 +21,6 @@ const BLANK_ORDER = {
     address: null
 };
 
-
-
 const CREATE_ORDER_MUTATION = gql`
     mutation CreateOrder(
         $type: ENUM_ORDER_TYPE!
@@ -120,11 +118,19 @@ const CREATE_ADDRESS_MUTATION = gql`
         }
     )
         {
-            address{
+            address
+            {
+                id             
                 line1
                 line2
                 postalcode
-        }
+                customer{
+                    id,
+                    firstname,
+                    lastname,
+                    mobilephone,
+                }
+            }
         }
     }
 `;
@@ -194,9 +200,10 @@ function CreateOrderPanel(props)
             changeShowSection('customer');
         }
     });
+
     const [CreateAddress, { loading: addressmutationLoading, error: addressmutationError }] = useMutation(CREATE_ADDRESS_MUTATION, {
         onCompleted(data){
-            changeShowSection('customer');
+            CreatedAddressSelected(data);
         }
     });
     const [UpdateCustomer, { loading: updatecustomermutationLoading, error: updatecustomermutationError }] = useMutation(UPDATE_CUSTOMER_MUTATION, {
@@ -276,10 +283,23 @@ function CreateOrderPanel(props)
         setCurrentCustomerSearch(val);
     }
 
+    function CreatedAddressSelected(data){
+
+        var nOrder = newOrder;
+        nOrder.customer = data.createAddress.address.customer.id;
+        nOrder.address = data.createAddress.address.id;
+        nOrder.customerData = data.createAddress.address.customer;
+        nOrder.addressData = data.createAddress.address;
+        updateNewOrder(nOrder);
+        changeShowSection('summary');
+
+    }
+
     function addressSelected(event)
     {
         var val = JSON.parse(event.target.dataset.value);
         var cust = JSON.parse(event.target.dataset.customer);
+        console.log(cust);
         var nOrder = newOrder;
         nOrder.customer = cust.id;
         nOrder.address = val.id;
