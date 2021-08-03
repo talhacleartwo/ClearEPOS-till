@@ -1,7 +1,7 @@
 export default function NotesTab(props)
 {
     function send_note(e){
-        e = e || window.event;
+        e =e ||  window.event;
         var target = e.target || e.srcElement;
         props.set_notes(target.value);
     }
