@@ -56,45 +56,43 @@ function ManageOrdersPanel()
     if (error) return <p>Error :(</p>;
 
     function changeUserSettings (){
-        var data = "";
-        if(renderUsersSettings === 'settings'){
-            data = 'orders';
-        } else {
-            data = 'settings';
-        }
+
+        var data = (renderUsersSettings === 'settings') ? 'orders' : 'settings';
         setView(renderUsersSettings => data);
+
     }
 
     function changeprinterSetting(printer_id){
         localStorage.setItem('settingscache',JSON.stringify({activePrinter : printer_id}));
         setView(renderUsersSettings => 'orders');
     }
-        return (
 
-            <section id="ManageOrders" className="panel sixty">
-                <header>
-                    <div className="left">
-                        <div className="brandLogoPlaceholder">Cleartwo</div>
-                        <DateTimeClock/>
-                        <div className="loggedUser">  | James</div>
-                    </div>
-                    <div className="right">
-                        <div style={{marginRight : 10}} onClick={() => {changeUserSettings()}} className="btn btn-icon btn-info "><i className="icon-settings"></i></div>
-                        <div onClick={() => {setCurrentUser(null)}} className="btn btn-icon btn-danger "><i className="icon-exit"></i></div>
-                    </div>
-                </header>
-                <div className="clearfix"></div>
-                {
-                    renderUsersSettings === 'settings' &&
-                    <UserSettings changeSettings = {changeprinterSetting}/>
-                }
-                {
-                    renderUsersSettings !== 'settings' &&
-                    <ManageOrders ordersData ={data} />
-                }
-            </section>
+    return (
 
-        );
+        <section id="ManageOrders" className="panel sixty">
+            <header>
+                <div className="left">
+                    <div className="brandLogoPlaceholder">Cleartwo</div>
+                    <DateTimeClock/>
+                    <div className="loggedUser">  | James</div>
+                </div>
+                <div className="right">
+                    <div style={{marginRight : 10}} onClick={() => {changeUserSettings()}} className="btn btn-icon btn-info "><i className="icon-settings"></i></div>
+                    <div onClick={() => {setCurrentUser(null)}} className="btn btn-icon btn-danger "><i className="icon-exit"></i></div>
+                </div>
+            </header>
+            <div className="clearfix"></div>
+            {
+                renderUsersSettings === 'settings' &&
+                <UserSettings changeSettings = {changeprinterSetting}/>
+            }
+            {
+                renderUsersSettings !== 'settings' &&
+                <ManageOrders ordersData ={data} />
+            }
+        </section>
+
+    );
 }
 
 export default ManageOrdersPanel;

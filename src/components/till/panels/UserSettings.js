@@ -10,13 +10,7 @@ function UserSettings(props)
     }
 
     var devices_data = JSON.parse(localStorage.getItem('deviceCache'));
-
-    var devices = [];
-    devices_data.map((device) => {
-        if(device.type === 'printer'){
-            devices.push(device);
-        }
-    });
+    var activePrinter = JSON.parse(localStorage.getItem('settingscache')).activePrinter;
 
     return (
 
@@ -29,7 +23,7 @@ function UserSettings(props)
                         devices_data.map((device) => {
                             if(device.type === 'printer'){
                                 return (
-                                    <option value={device.id}>{device.name}</option>
+                                    <option value={device.id} selected={activePrinter == device.id}>{device.name}</option>
                                 );
                             }
                         })
