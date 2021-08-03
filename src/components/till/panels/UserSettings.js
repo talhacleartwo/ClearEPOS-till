@@ -1,4 +1,5 @@
 import * as _storage from "../../../service/storage";
+import styles from "../../../Setup.module.css";
 
 function UserSettings(props)
 {
@@ -23,7 +24,7 @@ function UserSettings(props)
 
             <h4>Select Printer</h4>
             <div className="formGroup">
-                <select className="" onChange={() => {changeprintingdevice(this)}}>
+                <select className={styles.formcontrol_select} onChange={() => {changeprintingdevice(this)}}>
                     {
                         devices_data.map((device) => {
                             if(device.type === 'printer'){
