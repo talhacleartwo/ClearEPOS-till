@@ -21,6 +21,7 @@ import CreateOrderPanel from '../till/panels/CreateOrderPanel';
 import ManageOrdersPanel from '../till/panels/ManageOrdersPanel';
 import OrderEditor from '../till/screens/ordereditor/OrderEditor';
 import SignOn from '../toplevel/SignOn';
+import LoadCache from '../till/panels/cache/LoadCache';
 
 function Till()
 {
@@ -39,7 +40,7 @@ function Till()
 
     const [getDevices] = useLazyQuery(DEVICES_QUERY, {
         onCompleted: (data) =>{
-
+            setAwaitingCache(true);
             _storage.setDevicesCache(data.devices);
             for (let i = 0; i < data.devices.length; i++) {
                 if(data.devices[i].type === 'printer'){
@@ -61,13 +62,15 @@ function Till()
         if(!_storage.hasCatalogCache() && !awaitingCache)
         {
             return (
-                <div className="CacheLoadNeeded" onClick={()=>{fetchCatalogCache(); setAwaitingCache(true);}}>Click to load cache</div>
+                <LoadCache cache={"catalog"} fetchCatalog={fetchCatalogCache} />
+                // <div className="CacheLoadNeeded" onClick={()=>{fetchCatalogCache(); setAwaitingCache(true);}}>Click to load cache</div>
             );
         }
         if(!_storage.hasDevicesCache() && !awaitingCache)
         {
             return (
-                <div className="CacheLoadNeeded" onClick={()=>{getDevices(); setAwaitingCache(true);}}>Click to load Device cache</div>
+                <LoadCache cache={"devices"} fetchCatalog={getDevices} />
+                // <div className="CacheLoadNeeded" onClick={()=>{getDevices(); setAwaitingCache(true);}}>Click to load Device cache</div>
             );
         }
 

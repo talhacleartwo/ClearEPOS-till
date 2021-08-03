@@ -83,13 +83,13 @@ function ManageOrdersPanel()
             </header>
             <div className="clearfix"></div>
             {
-                renderUsersSettings === 'settings' &&
+                renderUsersSettings === 'settings'
+                ?
                 <UserSettings changeSettings = {changeprinterSetting}/>
-            }
-            {
-                renderUsersSettings !== 'settings' &&
+                :
                 <ManageOrders ordersData ={data} />
             }
+
         </section>
 
     );
