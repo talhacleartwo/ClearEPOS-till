@@ -42,12 +42,11 @@ const OPEN_ORDERS = gql`
     }}
 `;
 
-var renderUsers = 'orders';
-
 function ManageOrdersPanel()
 {
-     const [renderUsersSettings, setView] = useState([]);
-     const setCurrentUser = useUserUpdate();
+
+    let setCurrentUser = useUserUpdate();
+    let [renderUsersSettings, setrenderUsersSettings] = useState(false);
 
     //Fetch all orders
     const { loading, error, data } = useQuery(OPEN_ORDERS,{fetchPolicy: "cache-and-network"});
@@ -57,14 +56,14 @@ function ManageOrdersPanel()
 
     function changeUserSettings (){
 
-        var data = (renderUsersSettings === 'settings') ? 'orders' : 'settings';
-        setView(renderUsersSettings => data);
+        var data = (renderUsersSettings) ? false : true;
+        setrenderUsersSettings(data);
 
     }
 
     function changeprinterSetting(printer_id){
         localStorage.setItem('settingscache',JSON.stringify({activePrinter : printer_id}));
-        setView(renderUsersSettings => 'orders');
+        setrenderUsersSettings(true);
     }
 
     return (
@@ -83,7 +82,7 @@ function ManageOrdersPanel()
             </header>
             <div className="clearfix"></div>
             {
-                renderUsersSettings === 'settings'
+                renderUsersSettings
                 ?
                 <UserSettings changeSettings = {changeprinterSetting}/>
                 :

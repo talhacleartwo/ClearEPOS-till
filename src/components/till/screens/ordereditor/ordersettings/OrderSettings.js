@@ -2,6 +2,7 @@ import Tabs from "../../../controls/Tabs"
 import CurrentOrderHeader from "../../../ui/CurrentOrderHeader"
 import GeneralTab from "./tabs/GeneralTab";
 import NotesTab from "./tabs/NotesTab";
+import StatusTab from "./tabs/StatusTab";
 import {PrintReceipt} from '../../../../../service/printer';
 
 export default function OrderSettings(props)
@@ -16,10 +17,11 @@ export default function OrderSettings(props)
             <div id="SettingsContent">
                 <Tabs
                     startTab="general"
-                    tabHeaders={[{key:"general", title:"General", icon:"customise"},{key:"notes",title:"Notes",icon:"customise"}]}
+                    tabHeaders={[{key:"general", title:"General", icon:"customise"},{key:"notes",title:"Notes",icon:"customise"} , {key:"status",title:"Status",icon:"customise"}]}
                     tabBodys={[
                         <GeneralTab key="general" existingOrder={props.existingOrder}/>,
-                        <NotesTab key="notes" set_notes={set_notes} note={props.existingOrder.notes}/>
+                        <NotesTab key="notes" set_notes={set_notes} note={props.existingOrder.notes}/>,
+                        <StatusTab key="status" updateCurrentOrderStatus={props.updateCurrentOrderStatus} orderType={props.existingOrder.type} orderStatus={props.existingOrder.status}/>
                     ]}
                 />
             </div>

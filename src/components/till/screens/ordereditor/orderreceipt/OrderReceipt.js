@@ -20,7 +20,7 @@ function OrderReceipt(props)
                 lineItems={props.currentOrder.line_items}
                 editingItem={props.editingItem}
             />
-            <OrderActions setOrderPaymentOpen={props.setOrderPaymentOpen} currentOrder={props.currentOrder}/>
+            <OrderActions setOrderPaymentOpen={props.setOrderPaymentOpen} currentOrder={props.currentOrder} setOrderRefundOpen={props.setOrderRefundOpen}/>
         </div>
     );
 }

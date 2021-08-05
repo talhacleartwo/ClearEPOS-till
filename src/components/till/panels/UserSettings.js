@@ -18,12 +18,12 @@ function UserSettings(props)
 
             <h4>Select Printer</h4>
             <div className="formGroup">
-                <select className={styles.formcontrol_select} onChange={() => {changeprintingdevice(this)}}>
+                <select className={styles.formcontrol_select} onChange={() => {changeprintingdevice(this)}} defaultValue={activePrinter}>
                     {
                         devices_data.map((device) => {
                             if(device.type === 'printer'){
                                 return (
-                                    <option value={device.id} selected={activePrinter == device.id}>{device.name}</option>
+                                    <option value={device.id} key={device.id}>{device.name}</option>
                                 );
                             }
                         })

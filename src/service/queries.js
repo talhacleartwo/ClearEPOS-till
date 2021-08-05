@@ -159,6 +159,9 @@ export const ORDER_QUERY = gql`
                 },
                 itemmeta
             },
+            refundedamount,
+            discount,
+            subtotal,
             total
             created_at
         }
@@ -214,6 +217,27 @@ export const UPDATE_ORDER_NOTES = gql`
     {
         updateOrder(input:{where:{id:$orderId},data:{
             notes: $notes
+        }})
+        {
+            order{id}
+        }
+    }
+`;
+
+export const UPDATE_ORDER_REFUND= gql`
+    mutation UpdateOrderRefund(
+        $orderId: ID!,
+        $amount: Float!,
+        $reason: ENUM_ORDER_REFUNDEDREASON!,
+        $payment_status : ENUM_ORDER_PAYMENTSTATUS!,
+        $status : ENUM_ORDER_STATUS!
+    )
+    {
+        updateOrder(input:{where:{id:$orderId},data:{
+            refundedamount: $amount,
+            refundedreason : $reason,
+            paymentstatus : $payment_status,
+            status : $status
         }})
         {
             order{id}

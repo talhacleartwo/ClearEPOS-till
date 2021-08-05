@@ -1,10 +1,20 @@
 import {useState} from 'react';
 
-import {useQuery, useMutation} from '@apollo/client';
+import {useQuery, useMutation , useLazyQuery , gql} from '@apollo/client';
 //import {LoadingData} from '../../ui/DisplayUtility';
 
 //Queries
-import {REMOVE_LINE_ITEM, UPDATE_LINE_ITEM, ADD_LINE_ITEM, ORDER_QUERY, UPDATE_ORDER_STATUS, UPDATE_ORDER_NOTES, UPDATE_ORDER_PAYMENT_STATUS} from '../../../../service/queries';
+import {
+    REMOVE_LINE_ITEM,
+    UPDATE_LINE_ITEM,
+    ADD_LINE_ITEM,
+    ORDER_QUERY,
+    UPDATE_ORDER_STATUS,
+    UPDATE_ORDER_NOTES,
+    UPDATE_ORDER_PAYMENT_STATUS,
+    UPDATE_ORDER_REFUND,
+    CATALOG_CACHE_QUERY, DEVICES_QUERY
+} from '../../../../service/queries';
 
 import CategorySelector from './addorderitems/CategorySelector';
 import ProductSelector from './addorderitems/ProductSelector';
@@ -13,15 +23,26 @@ import OrderReceipt from './orderreceipt/OrderReceipt';
 import GroupProductSelector from './addorderitems/GroupProductSelector';
 import OrderSettings from './ordersettings/OrderSettings';
 import Payment from './payorder/Payment';
-//import PaymentMethod from './payorder/PaymentMethod';
+import RefundByCash from "./payorder/RefundByCash";
+// import PaymentMethod from './payorder/PaymentMethod';
+import SignOn from "../../../toplevel/SignOn";
+import * as _storage from "../../../../service/storage";
 
 
 
+var pincode = "";
+
+const VERIFY_PIN_QUERY = gql`
+    query VerifyPin($code: String!)
+        {users(where:{tillcode:$code})
+        {
+            id
+        }
+    }
+`;
 
 
-
-
-
+var orderData;
 
 function OrderEditor(props)
 {
@@ -31,6 +52,8 @@ function OrderEditor(props)
     const [currentOrderData,updateCurrentOrderData] = useState(null);
     const [orderSettingsOpen,setOrderSettingsOpen] = useState(false);
     const [orderPaymentOpen,setOrderPaymentOpen] = useState(false);
+    const [orderRefundOpen,setOrderRefundOpen] = useState(false);
+    const [managerPinOpen,setManagerPinOpen] = useState(false);
 
     //Query Order
     const {loading, error} = useQuery(ORDER_QUERY, {
@@ -38,10 +61,21 @@ function OrderEditor(props)
         fetchPolicy: 'cache-and-network', 
         variables:{orderId: props.orderId}, 
         onCompleted:(data) => {
-            console.log(data.order);
+            // orderData = data.order;
             updateCurrentOrderData(data.order);
         }
     });
+    const [getuserpin] = useLazyQuery(VERIFY_PIN_QUERY, {
+        fetchPolicy:"no-cache",
+        variables:{code:pincode},
+        onCompleted: (data) =>{
+            if(data.users.length > 0){
+                setManagerPinOpen(true);
+            } else{
+                setOrderRefundOpen(false);
+            }
+        }
+    })
 
     //Mutations
     const [addLineItem] = useMutation(ADD_LINE_ITEM,
@@ -89,11 +123,25 @@ function OrderEditor(props)
             refetchQueries:[
                 {
                     query:ORDER_QUERY,
-                    variables:{orderId: props.orderId
+                    variables:{
+                        orderId: props.orderId
+                    }
                 }
-            }
-        ]
-    });
+            ]
+        }
+    );
+    const [UpdateOrderRefund] = useMutation(UPDATE_ORDER_REFUND,
+        {
+            refetchQueries:[
+                {
+                    query:ORDER_QUERY,
+                    variables:{
+                        orderId: props.orderId,
+                    }
+                }
+            ]
+        }
+    );
     
     
     const [updateOrderPaymentStatus] = useMutation(UPDATE_ORDER_PAYMENT_STATUS,
@@ -187,6 +235,9 @@ function OrderEditor(props)
 
         //Close Payment Screen
         setOrderPaymentOpen(false);
+
+        //close settings secreen
+        setOrderSettingsOpen(false);
     }
 
     function updateCurrentOrderNotes(notes)
@@ -196,6 +247,27 @@ function OrderEditor(props)
 
         //Used to close the settings window
         setOrderSettingsOpen(false);
+    }
+
+    function verifyPin(pin){
+        pincode = pin;
+        getuserpin();
+    }
+
+    function updateOrderrefund(data){
+        UpdateOrderRefund(
+            {
+                variables:
+                {
+                    orderId : currentOrderData.id,
+                    amount : data.refundamount,
+                    reason : data.refundreason,
+                    payment_status : data.payment_status,
+                    status : data.status
+                }
+            }
+        );
+        setOrderRefundOpen(false);
     }
 
     function updateCurrentOrderPaymentStatus(paymentStatus, paymentMethod, subtotal, orderTotal, discountAmount)
@@ -217,53 +289,75 @@ function OrderEditor(props)
     return(
         <>
             {
-                !orderPaymentOpen ? 
+                !orderRefundOpen ?
                 (
-                    <section id="AddOrderItems" className="panel sixty">
-                        <div className="addOrderItemsWrapper">
+                    !orderPaymentOpen ?
+                    (
+                        <section id="AddOrderItems" className="panel sixty">
+                            <div className="addOrderItemsWrapper">
+                                {
+                                    currentProduct === null ?
+                                    (
+                                        <>
+                                            <CategorySelector current={currentCategory} update={setCurrentCategory}/>
+                                            {
+                                                currentCategory !== null ?
+                                                    <ProductSelector category={currentCategory} update={setCurrentProduct}/>
+                                                : null
+                                            }
+                                        </>
+                                    )
+                                    :
+                                    (
+
+                                        currentProduct.type === 'group' ?
+                                            <GroupProductSelector groupId={currentProduct.id} setCurrentProduct={setCurrentProduct}/>
+                                        :
+                                            <ProductEditor
+                                                productId={currentProduct.id} //Used to fetch & render the product details from catalog cache
+                                                addNewItemToOrder={addNewItemToOrder} //Used to add a brand new item to the order
+                                                removeItemFromOrder={removeExistingItemFromOrder} //Used to remove an item from the order
+                                                updateOrderItem={updateOrderItem} //Used to update an existing order item
+                                                itemToEdit={existingItem} //Used to show whether we are editing or adding an item
+                                                discardChanges={()=>{setCurrentProduct(null); setexistingItem(false);}}
+                                            />
+                                    )
+                                }
+                            </div>
+                        </section>
+                    )
+                    :
+                    (
+                        <section id="OrderPayment" className="panel sixty">
+                            <Payment
+                                currentOrder={currentOrderData}
+                                cancelOrderPayment={()=>{setOrderPaymentOpen(false);}}
+                                changeOrderStatus={updateCurrentOrderStatus}
+                                changeOrderPaymentStatus={updateCurrentOrderPaymentStatus}
+                                updateordernotes={updateCurrentOrderNotes}
+                            />
+                        </section>
+                    )
+                )
+                :
+                    (
+                        <section id="orderRefund" className="panel sixty">
                             {
-                                currentProduct === null ? 
+                                managerPinOpen ?
                                 (
-                                    <>
-                                        <CategorySelector current={currentCategory} update={setCurrentCategory}/>
-                                        {
-                                            currentCategory !== null ?
-                                                <ProductSelector category={currentCategory} update={setCurrentProduct}/> 
-                                            : null
-                                        }
-                                    </>
+                                    <RefundByCash
+                                        cancel={setOrderRefundOpen}
+                                        orderData={currentOrderData}
+                                        updateOrderrefund={updateOrderrefund}
+                                    />
                                 )
                                 :
                                 (
-                                    
-                                    currentProduct.type === 'group' ? 
-                                        <GroupProductSelector groupId={currentProduct.id} setCurrentProduct={setCurrentProduct}/>
-                                    :
-                                        <ProductEditor 
-                                            productId={currentProduct.id} //Used to fetch & render the product details from catalog cache
-                                            addNewItemToOrder={addNewItemToOrder} //Used to add a brand new item to the order
-                                            removeItemFromOrder={removeExistingItemFromOrder} //Used to remove an item from the order
-                                            updateOrderItem={updateOrderItem} //Used to update an existing order item
-                                            itemToEdit={existingItem} //Used to show whether we are editing or adding an item
-                                            discardChanges={()=>{setCurrentProduct(null); setexistingItem(false);}}
-                                        />
+                                    <SignOn status={"refund"} verifypin={verifyPin} />
                                 )
                             }
-                        </div>
-                    </section>
-                )
-                :
-                (
-                    <section id="OrderPayment" className="panel sixty">
-                        <Payment
-                            currentOrder={currentOrderData}
-                            cancelOrderPayment={()=>{setOrderPaymentOpen(false);}} 
-                            changeOrderStatus={updateCurrentOrderStatus}
-                            changeOrderPaymentStatus={updateCurrentOrderPaymentStatus}
-                            updateordernotes={updateCurrentOrderNotes}
-                        />
-                    </section>
-                )
+                        </section>
+                    )
             }
             
             {
@@ -279,6 +373,7 @@ function OrderEditor(props)
                             editingItem={existingItem.id ? existingItem.id : null}
                             orderPaymentOpen={orderPaymentOpen} //Used to indicate if order is currently being paid for
                             setOrderPaymentOpen={()=>{setOrderPaymentOpen(true)}} //Used to start the order payment process
+                            setOrderRefundOpen={()=>{setOrderRefundOpen(true)}}
                         />
                     </section>
                 )
@@ -289,6 +384,7 @@ function OrderEditor(props)
                             closeOrderSettings={()=>{setOrderSettingsOpen(false);}} //Used to close the settings window
                             existingOrder={currentOrderData}
                             UpdateOrderNotes={updateCurrentOrderNotes}//Passing data about current order
+                            updateCurrentOrderStatus={updateCurrentOrderStatus}
                         />
                     </section>
                 )

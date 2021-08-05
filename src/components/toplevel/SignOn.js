@@ -35,7 +35,7 @@ query AttemptLogin($code: String!){
         }
     }
 }`;
-function SignOn()
+function SignOn(props)
 {
     
     //Context for Users
@@ -134,7 +134,16 @@ function SignOn()
                 <div className={styles.keyRow}>
                     <div onClick={keyPress} className={styles.key} data-value="-">C</div>
                     <div onClick={keyPress} className={styles.key} data-value="0">0</div>
-                    <div onClick={handleSubmit} className={styles.key}>G</div>
+                    {
+                        props.status == 'refund' ?
+                        (
+                            <div onClick={() => props.verifypin(currentCode)} className={styles.key}>G</div>
+                        )
+                        :
+                        (
+                            <div onClick={handleSubmit} className={styles.key}>G</div>
+                        )
+                    }
                 </div>
             </div>
             <div id="DevOptions" className={"show-" + showDevOpts} onClick={()=>{setShowDevOpts(true)}}>
@@ -154,9 +163,9 @@ function SignOn()
                                     }
                                 }}>Clear Catalog Cache</li>
                                 <li onClick={()=>{getDevices()}}>Refresh Device Cache</li>
-                                <li onClick={()=>{
+                                {/*<li onClick={()=>{
                                     _storage.deleteDevicesCache();window.location.reload();
-                                }}>Clear Devices Cache</li>
+                                }}>Clear Devices Cache</li>*/}
                             </ul>
                         </div>
                     )
