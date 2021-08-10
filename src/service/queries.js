@@ -162,8 +162,9 @@ export const ORDER_QUERY = gql`
             refundedamount,
             discount,
             subtotal,
-            total
-            created_at
+            total,
+            created_at,
+            estimateddelivery
         }
     }
 `;
@@ -193,15 +194,31 @@ export const UPDATE_ORDER_PAYMENT_STATUS = gql`
     }
 `;
 
+export const UPDATE_ORDER_DELIVERY_TIME = gql`
+    mutation UpdateOrderStatus(
+        $orderId: ID!,
+        $delvierytime : DateTime
+    )
+    {
+        updateOrder(input:{where:{id:$orderId},data:{
+            estimateddelivery : $delvierytime
+        }})
+        {
+            order{id}
+        }
+    }
+`;
 
 export const UPDATE_ORDER_STATUS = gql`
     mutation UpdateOrderStatus(
         $orderId: ID!,
-        $status: ENUM_ORDER_STATUS!
+        $status: ENUM_ORDER_STATUS!,
+        $delvierytime : DateTime
     )
     {
         updateOrder(input:{where:{id:$orderId},data:{
             status: $status
+            estimateddelivery : $delvierytime
         }})
         {
             order{id}

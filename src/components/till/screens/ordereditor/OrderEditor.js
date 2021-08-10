@@ -13,6 +13,7 @@ import {
     UPDATE_ORDER_NOTES,
     UPDATE_ORDER_PAYMENT_STATUS,
     UPDATE_ORDER_REFUND,
+    UPDATE_ORDER_DELIVERY_TIME,
     CATALOG_CACHE_QUERY, DEVICES_QUERY
 } from '../../../../service/queries';
 
@@ -41,11 +42,29 @@ const VERIFY_PIN_QUERY = gql`
     }
 `;
 
+const DEVICE_SITE_QUERY = gql`
+    query SiteData($device_id: ID!)
+        {device(id:$device_id)
+        {
+            id,
+            site
+            {
+                id,
+                name,
+                deliverytime,
+                collectiontime
+            }
+        }
+    }
+`;
 
 var orderData;
-
+var SiteData = {};
 function OrderEditor(props)
 {
+    
+    var siteID = JSON.parse(localStorage.getItem("appConfig")).deviceConfig.id;
+
     const [currentCategory,setCurrentCategory] = useState(null);
     const [currentProduct,setCurrentProduct] = useState(null);
     const [existingItem,setexistingItem] = useState(false);
@@ -63,6 +82,15 @@ function OrderEditor(props)
         onCompleted:(data) => {
             // orderData = data.order;
             updateCurrentOrderData(data.order);
+        }
+    });
+    const {siteloading, siteerror} = useQuery(DEVICE_SITE_QUERY, {
+        fetchPolicy: 'cache-and-network',
+        variables:{device_id: JSON.parse(localStorage.getItem("appConfig")).deviceConfig.id},
+        onCompleted:(data) => {
+            // orderData = data.order;
+            /*updateCurrentOrderData(data.order);*/
+            SiteData = data.device.site;
         }
     });
     const [getuserpin] = useLazyQuery(VERIFY_PIN_QUERY, {
@@ -118,6 +146,18 @@ function OrderEditor(props)
             }
         ]
     });
+
+    const [updateOrderDeliveryTime] = useMutation(UPDATE_ORDER_DELIVERY_TIME,
+        {
+            refetchQueries:[
+                {
+                    query:ORDER_QUERY,
+                    variables:{orderId: props.orderId
+                    }
+                }
+            ]
+        });
+
     const [UpdateOrderNotes] = useMutation(UPDATE_ORDER_NOTES,
         {
             refetchQueries:[
@@ -228,16 +268,39 @@ function OrderEditor(props)
         //refetch();
     }
 
-    function updateCurrentOrderStatus(status)
+    function updateCurrentOrderStatus(data)
     {
+        if(data.deliverytime == 'asap' || data.deliverytime == null){
+            data.deliverytime = null;
+        }
+        updateOrderStatus({variables:{orderId: currentOrderData.id, status:data.status , delvierytime : data.deliverytime}});
+
+        //close settings secreen
+        setOrderSettingsOpen(false);
+
+        //Close Payment Screen
+        setOrderPaymentOpen(false);
+
+    }
+
+    function updateCurrentOrderDeliveryTime(delvierytime)
+    {
+        alert('jhfasd');
+        if(delvierytime == 'asap' || delvierytime == null){
+            delvierytime = null;
+        } else {
+            delvierytime = new Date(delvierytime);
+            delvierytime.toISOString();
+        }
         //Update the order status
-        updateOrderStatus({variables:{orderId: currentOrderData.id, status:status}});
+        updateOrderDeliveryTime({variables:{orderId: currentOrderData.id, delvierytime:delvierytime}});
 
         //Close Payment Screen
         setOrderPaymentOpen(false);
 
         //close settings secreen
         setOrderSettingsOpen(false);
+
     }
 
     function updateCurrentOrderNotes(notes)
@@ -335,6 +398,7 @@ function OrderEditor(props)
                                 changeOrderStatus={updateCurrentOrderStatus}
                                 changeOrderPaymentStatus={updateCurrentOrderPaymentStatus}
                                 updateordernotes={updateCurrentOrderNotes}
+                                siteData={SiteData}
                             />
                         </section>
                     )
@@ -381,6 +445,7 @@ function OrderEditor(props)
                 (
                     <section id="OrderSettings" className="panel forty">
                         <OrderSettings
+
                             closeOrderSettings={()=>{setOrderSettingsOpen(false);}} //Used to close the settings window
                             existingOrder={currentOrderData}
                             UpdateOrderNotes={updateCurrentOrderNotes}//Passing data about current order

@@ -1,19 +1,61 @@
 import {useState} from 'react';
 import * as _itemEditUtils from '../../../../../service/itemEditUtils'
 
+import styles from '../../../../../Setup.module.css'
 
 const SPLIT_LIMIT = 4;
 
+var selecteddeliverytime=false ;
+var previousValueDeliveryTime;
+
 export default function Payment(props)
 {
-    //console.log("Payment ORder Details: ", props.currentOrder);
+    
+    // var estimateddelivery='2021-08-09T8:21:0';
+    if(props.currentOrder.estimateddelivery){
 
+        var estimateddelivery = new Date(props.currentOrder.estimateddelivery);
+        var year = estimateddelivery.getFullYear();
+        var month = estimateddelivery.getMonth()+1;
+        var dt = estimateddelivery.getDate();
+
+        if (dt < 10) {
+            dt = '0' + dt;
+        }
+        if (month < 10) {
+            month = '0' + month;
+        }
+        var hours = estimateddelivery.getHours();
+        var minutes = estimateddelivery.getMinutes();
+        var seconds = estimateddelivery.getSeconds();
+        if (hours < 10) {
+            hours = '0' + hours;
+        }
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        estimateddelivery = year+'-'+month+'-'+dt+'T'+hours+':'+minutes+':'+seconds;
+        console.log(year+'-'+month+'-'+dt+'T'+hours+':'+minutes+':'+seconds);
+
+    }
+// console.log("Payment ORder Details: ", props.currentOrder);
+
+    previousValueDeliveryTime = props.currentOrder.estimateddelivery == null ? null : props.currentOrder.estimateddelivery;
+     if(selecteddeliverytime==false )
+    {
+     selecteddeliverytime=previousValueDeliveryTime;
+    }
     const ORDER_TOTAL = _itemEditUtils.calculateOrderTotal(props.currentOrder.line_items);
     const DELIVERY_ORDER = props.currentOrder.type === "delivery";
 
     const [typedPrefix,updateTypedPrefix] = useState("");
     const [typed,updateTyped] = useState("");
     const [changeDue,setChangeDue] = useState(false);
+
+    const [DeliveryTime,setDeliveryTime] = useState("");
 
     const [paymentMethod,setpaymentMethod] = useState("Cash");
 
@@ -46,13 +88,18 @@ export default function Payment(props)
     const showNotesBtns = ((paymentMethod === "Cash" && discountMode !== true && splitMode !== true) || (discountMode === true && discountMethod === "£")) && !DELIVERY_ORDER;
     const showPercentBtns = (discountMode === true && discountMethod === "%") && !DELIVERY_ORDER;
 
-
-
     function orderBtnHandler()
     {
+        // alert(selecteddeliverytime);
         //Update Order status to 'inkitchen'
-        var orderStatus = 'inkitchen';
-        props.changeOrderStatus(orderStatus)
+        if(selecteddeliverytime == null){
+            selecteddeliverytime = null
+        } else {
+            var date = new Date(selecteddeliverytime);
+           date.setMinutes( date.getMinutes() + props.siteData.deliverytime );
+           date = date.toISOString();
+        }
+        props.changeOrderStatus({status : 'new' , deliverytime:date})
     }
 
     function payBtnHandler()
@@ -72,7 +119,6 @@ export default function Payment(props)
             discountAmnt
         );
     }
-
 
     const calculateSplitFn = (p, d, n) =>
     {
@@ -274,6 +320,19 @@ export default function Payment(props)
         
     }
 
+    function estimatedDeliveryTime(event){
+        selecteddeliverytime = event.target.value;
+    }
+
+    function changeddeliverytime(event){
+        selecteddeliverytime =  event.target.value == 'asap' ? null : selecteddeliverytime;
+        
+        event.target.value == 'time' ? setDeliveryTime(true) : setDeliveryTime(false);
+    }
+
+    function updatedeliverystatus (){
+        // props.updateOrderDeliveryTime(selecteddeliverytime);
+    }
 
     return (
         <>
@@ -321,7 +380,38 @@ export default function Payment(props)
                                     <span className="opt">No</span>
                                 </label>
                             </div>
-                            Delivery Time: ASAP
+                            {
+                                props.currentOrder.type == 'delivery' &&
+                                <div>
+                                    Delivery Time:
+                                    <select onChange={changeddeliverytime} className={styles.formcontrol_select} style={{marginBottom : 10}}>
+                                        <option value="asap" selected={props.currentOrder.estimateddelivery === null}>ASAP</option>
+                                        <option value="time" selected={props.currentOrder.estimateddelivery !== null}>Requested Time</option>npm
+                                    </select>
+
+                                    {
+                                        (DeliveryTime || selecteddeliverytime != null) ?
+                                         (
+                                                <>
+                                                    <label>Select Devliery Time</label>
+                                                    {
+                                                        props.currentOrder.estimateddelivery !== null ?
+                                                            (
+                                                                <input type="datetime-local" defaultValue={estimateddelivery} onChange={estimatedDeliveryTime} />
+                                                            )
+                                                            :
+                                                            (
+                                                                <input type="datetime-local" onChange={estimatedDeliveryTime} />
+                                                            )
+                                                    }
+                                                </>
+                                            )
+                                            :
+                                            null
+                                    }
+
+                                </div>
+                            }
                         </div>
                     </div>
                     <div className="typeBar">
@@ -329,7 +419,7 @@ export default function Payment(props)
                             discountMode === true ?
                             (
                                 typedPrefix + discountMethod + typed
-                            ) 
+                            )
                             :
                             (
                                 typedPrefix + typed

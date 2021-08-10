@@ -1,6 +1,7 @@
 import styles from '../../Setup.module.css'
 import {gql, useLazyQuery, useQuery} from '@apollo/client'
 import {useState} from 'react'
+import Select from 'react-select'
 import * as _storage from "../../service/storage";
 var QRCode = require('qrcode.react');
 
@@ -24,7 +25,9 @@ const DEVICE_QUERY = gql`
             name,
             site{
                 id,
-                name
+                name,
+                deliverytime,
+                collectiontime
             },
             type
         }
@@ -54,7 +57,12 @@ function Setup()
     const [useExistingCode,setUseExistingCode] = useState(false);
     const [existingCode,setExistingCode] = useState("");
 
-    const [checkDevice, { loading:loadingDevice, data:deviceData }] = useLazyQuery(DEVICE_QUERY, {variables: {code:(useExistingCode ? existingCode : newCode)}})
+    const [checkDevice, { loading:loadingDevice, data:deviceData }] = useLazyQuery(DEVICE_QUERY, {
+        variables: {code:(useExistingCode ? existingCode : newCode)},
+        onCompleted:(data) => {
+            console.log(data.devices);
+        }
+    })
 
     if(loading){return 'Loading Setup..';}
     if(error){return 'Something went wrong while loading setup..';}
@@ -96,6 +104,11 @@ function Setup()
         setConfig(newConfig);
     }
 
+    const options = [
+        { value: 'chocolate', label: 'Chocolate' },
+        { value: 'strawberry', label: 'Strawberry' },
+        { value: 'vanilla', label: 'Vanilla' }
+    ]
 
     function completeSetup()
     {
@@ -190,6 +203,10 @@ function Setup()
                                     ))
                                 }
                             </select>
+
+
+
+                            {/*<Select options={options} style={{color : 'white'}} />*/}
                         </div>
                         <div className="nav buttonBar">
                             <button className="btn btn-danger" onClick={()=>{setStep(2)}}>Back</button>

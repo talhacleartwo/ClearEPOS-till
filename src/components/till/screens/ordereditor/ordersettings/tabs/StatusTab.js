@@ -4,6 +4,7 @@ var status = "";
 
 export default function StatusTab(props)
 {
+    console.log(props);
     status = props.orderStatus;
 
     function changedstatus (event){
@@ -11,7 +12,7 @@ export default function StatusTab(props)
         status = event.target.value;
     }
     function updateStatus (){
-        props.updateCurrentOrderStatus(status);
+        props.updateCurrentOrderStatus({status : status , deliverytime : props.orderDeliveryTime});
     }
 
     return (

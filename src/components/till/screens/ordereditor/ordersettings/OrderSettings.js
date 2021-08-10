@@ -21,7 +21,7 @@ export default function OrderSettings(props)
                     tabBodys={[
                         <GeneralTab key="general" existingOrder={props.existingOrder}/>,
                         <NotesTab key="notes" set_notes={set_notes} note={props.existingOrder.notes}/>,
-                        <StatusTab key="status" updateCurrentOrderStatus={props.updateCurrentOrderStatus} orderType={props.existingOrder.type} orderStatus={props.existingOrder.status}/>
+                        <StatusTab key="status" updateCurrentOrderStatus={props.updateCurrentOrderStatus} orderType={props.existingOrder.type} orderStatus={props.existingOrder.status} orderDeliveryTime={props.existingOrder.estimateddelivery}/>
                     ]}
                 />
             </div>
