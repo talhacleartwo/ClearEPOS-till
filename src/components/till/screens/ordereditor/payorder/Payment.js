@@ -98,6 +98,7 @@ export default function Payment(props)
             var date = new Date(selecteddeliverytime);
            date.setMinutes( date.getMinutes() + props.siteData.deliverytime );
            date = date.toISOString();
+           console.log("ajhsfd");
         }
         props.changeOrderStatus({status : 'new' , deliverytime:date})
     }
